@@ -25,9 +25,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="../../../index.html#methods">分析方法</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../../../index.html#about">关于项目</a>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -84,13 +81,13 @@
 </li>
 </ul>
 <hr>
-<h3 id="2-总结其输入输出">2. 总结其输入输出</h3>
-<h4 id="输入："><strong>输入</strong>：</h4>
+<h3 id="2-输入数据与输出结果">2. 输入数据与输出结果</h3>
+<h4 id="输入数据："><strong>输入数据</strong>：</h4>
 <ul>
 <li><strong>离线训练阶段</strong>：历史调用链数据（Traces）。</li>
 <li><strong>在线检测阶段</strong>：新到达的调用链（New Trace）。</li>
 </ul>
-<h4 id="输出："><strong>输出</strong>：</h4>
+<h4 id="输出结果："><strong>输出结果</strong>：</h4>
 <ul>
 <li><strong>离线训练阶段</strong>：训练好的模型（Model）。</li>
 <li><strong>在线检测阶段</strong>：<ul>
@@ -100,8 +97,8 @@
 </li>
 </ul>
 <hr>
-<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
-<h4 id="技术亮点："><strong>技术亮点</strong>：</h4>
+<h3 id="3-核心技术分析">3. 核心技术分析</h3>
+<h4 id="主要优势："><strong>主要优势</strong>：</h4>
 <ol>
 <li><strong>无监督学习</strong>：采用无监督学习方法（如深度贝叶斯网络）进行模型训练，无需标注数据，适用于大规模微服务系统的异常检测场景。</li>
 <li><strong>服务跟踪向量（STV）</strong>：通过构建 STV 对调用链进行结构化表示，能够有效捕获调用链中的关键特征，提升模型的表达能力。</li>
@@ -109,7 +106,7 @@
 <li><strong>根因定位能力</strong>：在检测到异常后，能够进一步定位异常的根本原因，有助于快速排查问题。</li>
 <li><strong>白名单机制</strong>：通过白名单机制处理未见过的调用路径，避免误报，同时积累新的正常模式。</li>
 </ol>
-<h4 id="技术不足："><strong>技术不足</strong>：</h4>
+<h4 id="局限性："><strong>局限性</strong>：</h4>
 <ol>
 <li><strong>模型复杂性</strong>：深度贝叶斯网络的训练和推理过程可能较为复杂，计算开销较大，尤其是在大规模微服务环境中。</li>
 <li><strong>依赖历史数据质量</strong>：模型的性能高度依赖于历史调用链数据的质量。如果历史数据中存在噪声或异常，可能会导致模型学习到错误的正常模式。</li>
@@ -129,6 +126,7 @@
             <h2>流程图</h2>
             <div class="diagram-container">
                 <img src="截屏2025-03-21 14.12.47.png" alt="TraceAnomaly流程图" class="img-fluid">
+                <div class="zoom-hint">点击可放大查看</div>
             </div>
         </div>
         </div>
@@ -140,15 +138,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6 mb-4 mb-md-0">
-                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
-                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                    <h5 class="fw-bold mb-3">微服务根因分析</h5>
                 </div>
                 <div class="col-md-3 mb-4 mb-md-0">
                     <h5 class="fw-bold mb-3">快速链接</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="../../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
                         <li class="mb-2"><a href="../../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
-                        <li class="mb-2"><a href="../../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">

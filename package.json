@@ -6,8 +6,14 @@
   "scripts": {
     "generate": "node generate-pages.js",
     "build": "npm install && node generate-pages.js",
-    "deploy": "gh-pages -d ."
+    "deploy": "gh-pages -d .",
+    "preview": "npx serve"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fighterforever/display.git"
+  },
+  "homepage": "https://fighterforever.github.io/display/",
   "keywords": [
     "microservice",
     "root cause analysis",

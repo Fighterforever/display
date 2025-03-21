@@ -243,12 +243,17 @@ body {
 
 /* 图片提示信息 */
 .diagram-container::after {
-    content: "点击可放大查看";
-    display: block;
+    content: "";
+    display: none;
+}
+
+/* 图片放大提示 */
+.zoom-hint {
     text-align: center;
     color: #6c757d;
     margin-top: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-style: italic;
 }
 
 /* 遮罩层 */
