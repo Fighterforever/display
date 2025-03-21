@@ -296,7 +296,16 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
     if (mdFile && fs.existsSync(mdFile)) {
         try {
             const md = fs.readFileSync(mdFile, 'utf8');
-            mdContent = processMarkdown(md);
+            
+            // 统一处理Markdown内容，移除"根据流程图讲解论文提出的模型流程"等非统一语句
+            let cleanedMd = md
+                .replace(/根据流程图讲解论文提出的模型流程/g, '模型流程')
+                .replace(/根据流程图讲解\S*提出的模型流程/g, '模型流程')
+                .replace(/根据流程图讲解/g, '')
+                .replace(/论文提出的/g, '')
+                .replace(/根据论文内容/g, '');
+                
+            mdContent = processMarkdown(cleanedMd);
         } catch (error) {
             console.error(`处理Markdown文件失败(${mdFile}):`, error);
             mdContent = '<p>无法读取方法说明文件</p>';
@@ -314,6 +323,7 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
             <h2>流程图</h2>
             <div class="diagram-container">
                 <img src="${imgName}" alt="${title}流程图" class="img-fluid">
+                <div class="zoom-hint">点击可放大查看</div>
             </div>
         </div>`;
     } else {
