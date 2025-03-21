@@ -182,25 +182,105 @@ body {
     z-index: 1;
 }
 
-.diagram-container {
-    text-align: center;
-    margin: 2rem 0;
+/* 两栏布局 - 方法详情页 */
+.method-detail-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
 }
 
+/* 内容列 */
+.content-column {
+    width: 100%;
+}
+
+/* 图表列 */
+.diagram-column {
+    width: 100%;
+}
+
+/* 固定流程图 */
+.sticky-diagram {
+    position: sticky;
+    top: 2rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* 流程图容器 */
+.diagram-container {
+    text-align: center;
+    margin: 1rem 0;
+    cursor: pointer;
+    position: relative;
+}
+
+/* 流程图图片 */
 .diagram-container img {
     max-width: 100%;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
 }
 
-/* 高亮部分 */
-.highlight {
-    background-color: #f8f9fa;
-    border-left: 4px solid var(--primary-color);
-    padding: 1.5rem;
-    margin: 1.5rem 0;
-    border-radius: 0 8px 8px 0;
+/* 添加图片点击放大功能 */
+.diagram-container.expanded img {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.8);
+    max-width: 90vw;
+    max-height: 90vh;
+    z-index: 1000;
+    background-color: white;
+    padding: 10px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 图片提示信息 */
+.diagram-container::after {
+    content: "点击可放大查看";
+    display: block;
+    text-align: center;
+    color: #6c757d;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* 遮罩层 */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    display: none;
+}
+
+.modal-backdrop.show {
+    display: block;
+}
+
+/* 响应式适配 */
+@media (max-width: 992px) {
+    .method-detail-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .sticky-diagram {
+        position: relative;
+        top: 0;
+    }
+
+    .diagram-container.expanded img {
+        transform: translate(-50%, -50%) scale(1.5);
+    }
 }
 
 /* 补充样式 */
@@ -237,44 +317,4 @@ blockquote {
     padding-left: 1rem;
     margin-left: 0;
     color: #64748b;
-}
-
-/* 两栏布局 - 方法详情页 */
-.method-detail-container {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 2rem;
-}
-
-/* 内容列 */
-.content-column {
-    width: 100%;
-}
-
-/* 图表列 */
-.diagram-column {
-    width: 100%;
-}
-
-/* 固定流程图 */
-.sticky-diagram {
-    position: sticky;
-    top: 2rem;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-/* 响应式适配 */
-@media (max-width: 992px) {
-    .method-detail-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .sticky-diagram {
-        position: relative;
-        top: 0;
-    }
 } 

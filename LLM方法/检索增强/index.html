@@ -60,6 +60,7 @@
     <div class="method-detail-container">
         <div class="content-column">
             <div class="content-section">
+                <h2>方法详细说明</h2>
                 <h3 id="1-根据流程图讲一遍论文提出的模型的流程">1. 根据流程图讲一遍论文提出的模型的流程</h3>
 <h4 id="整体架构"><strong>整体架构</strong></h4>
 <p>RCACopilot 的架构分为两个主要阶段：<strong>诊断信息收集阶段（Collection Stage）</strong> 和 <strong>根因预测阶段（Prediction Stage）</strong>。以下是具体流程：</p>
@@ -247,6 +248,9 @@
         </div>
     </footer>
 
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
@@ -264,6 +268,37 @@
             } else {
                 navbar.classList.remove('scrolled');
             }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
         });
     </script>
 </body>

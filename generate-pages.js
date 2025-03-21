@@ -334,6 +334,7 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
     <div class="method-detail-container">
         <div class="content-column">
             <div class="content-section">
+                <h2>方法详细说明</h2>
                 ${mdContent}
             </div>
         </div>

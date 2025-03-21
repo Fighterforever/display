@@ -60,6 +60,7 @@
     <div class="method-detail-container">
         <div class="content-column">
             <div class="content-section">
+                <h2>方法详细说明</h2>
                 <h3 id="1-根据流程图讲解论文提出的模型流程">1. 根据流程图讲解论文提出的模型流程</h3>
 <p>根据论文内容和提供的流程图，MicroCause 模型的完整流程如下：</p>
 <h4 id="步骤-1：输入数据"><strong>步骤 1：输入数据</strong></h4>
@@ -228,6 +229,9 @@
         </div>
     </footer>
 
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
@@ -245,6 +249,37 @@
             } else {
                 navbar.classList.remove('scrolled');
             }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
         });
     </script>
 </body>

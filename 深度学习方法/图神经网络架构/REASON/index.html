@@ -60,6 +60,7 @@
     <div class="method-detail-container">
         <div class="content-column">
             <div class="content-section">
+                <h2>方法详细说明</h2>
                 <h3 id="1-根据流程图讲一遍这个论文提出模型的流程">1. 根据流程图讲一遍这个论文提出模型的流程</h3>
 <h4 id="流程图概述：">流程图概述：</h4>
 <p>该图展示了复杂系统中的<strong>层次化因果网络（Hierarchical Causal Networks）</strong>，其中包含多个相互依赖的子网络。具体来说，图中分为三个主要部分：<code>Compute-1</code>、<code>Compute-2</code> 和 <code>Infra-1</code>，每个部分代表一个子网络或层级。这些子网络通过跨层边连接，形成一个多层次的因果结构。</p>
@@ -227,6 +228,9 @@
         </div>
     </footer>
 
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
@@ -244,6 +248,37 @@
             } else {
                 navbar.classList.remove('scrolled');
             }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
         });
     </script>
 </body>
