@@ -58,7 +58,7 @@
         <div class="content-column">
             <div class="content-section">
                 <h2>方法详细说明</h2>
-                <h3 id="1-根据流程图讲一遍这个论文提出模型的流程">1. 根据流程图讲一遍这个论文提出模型的流程</h3>
+                <h3 id="1-模型架构与工作流程">1. 模型架构与工作流程</h3>
 <h4 id="rcagent-的工作流程（action-cycle-of-rcagent）"><strong>RCAgent 的工作流程（Action Cycle of RCAgent）</strong></h4>
 <p>RCAgent 是一个基于工具增强的大语言模型（LLM）的自主代理框架，用于云系统的根本原因分析（RCA）。其核心是一个“思考-行动-观察”循环（Thought-Action-Observation Loop），如下图所示：</p>
 <p><img src="https://i.imgur.com/your_image_url.png" alt="Action Cycle of RCAgent"></p>
@@ -109,15 +109,15 @@
 </li>
 </ol>
 <hr>
-<h3 id="2-总结其输入输出">2. 总结其输入输出</h3>
-<h4 id="输入："><strong>输入</strong>：</h4>
+<h3 id="2-输入数据与输出结果">2. 输入数据与输出结果</h3>
+<h4 id="输入数据："><strong>输入数据</strong>：</h4>
 <ul>
 <li><strong>Framework Rules</strong>：框架规则，定义代理的行为逻辑。</li>
 <li><strong>Task Requirement</strong>：任务需求，包括 RCA 任务的具体目标和指令。</li>
 <li><strong>Tools Documentation</strong>：工具文档，描述所有可用工具的功能和使用方法。</li>
 <li><strong>Environment Data</strong>：来自环境的数据，包括日志系统、数据库和代码仓库中的信息。</li>
 </ul>
-<h4 id="输出："><strong>输出</strong>：</h4>
+<h4 id="输出结果："><strong>输出结果</strong>：</h4>
 <ul>
 <li><strong>Root Cause Prediction</strong>：根本原因预测。</li>
 <li><strong>Solution Generation</strong>：解决方案生成。</li>
@@ -126,8 +126,8 @@
 <li><strong>Finalized Results</strong>：最终的 RCA 结果，以结构化格式（如 JSON）输出。</li>
 </ul>
 <hr>
-<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
-<h4 id="技术亮点："><strong>技术亮点</strong>：</h4>
+<h3 id="3-核心技术分析">3. 核心技术分析</h3>
+<h4 id="主要优势："><strong>主要优势</strong>：</h4>
 <ol>
 <li><p><strong>工具增强的自主代理</strong>：</p>
 <ul>
@@ -161,7 +161,7 @@
 </ul>
 </li>
 </ol>
-<h4 id="技术不足："><strong>技术不足</strong>：</h4>
+<h4 id="局限性："><strong>局限性</strong>：</h4>
 <ol>
 <li><p><strong>依赖本地部署的 LLM</strong>：</p>
 <ul>

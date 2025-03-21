@@ -58,10 +58,10 @@
         <div class="content-column">
             <div class="content-section">
                 <h2>方法详细说明</h2>
-                <h3 id="1-根据流程图讲一遍这个论文提出模型的流程">1. 根据流程图讲一遍这个论文提出模型的流程</h3>
-<h4 id="流程图概述：">流程图概述：</h4>
+                <h3 id="1-模型架构与工作流程">1. 模型架构与工作流程</h3>
+<h4 id="图示概述：">图示概述：</h4>
 <p>该图展示了复杂系统中的<strong>层次化因果网络（Hierarchical Causal Networks）</strong>，其中包含多个相互依赖的子网络。具体来说，图中分为三个主要部分：<code>Compute-1</code>、<code>Compute-2</code> 和 <code>Infra-1</code>，每个部分代表一个子网络或层级。这些子网络通过跨层边连接，形成一个多层次的因果结构。</p>
-<h4 id="流程分解：">流程分解：</h4>
+<h4 id="关键流程：">关键流程：</h4>
 <ol>
 <li><p><strong>输入数据</strong>：</p>
 <ul>
@@ -103,21 +103,21 @@
 </li>
 </ol>
 <hr>
-<h3 id="2-输入与输出总结">2. 输入与输出总结</h3>
-<h4 id="输入：">输入：</h4>
+<h3 id="2-输入数据与输出结果">2. 输入数据与输出结果</h3>
+<h4 id="输入数据数据：">输入数据数据：</h4>
 <ul>
 <li><strong>系统监控数据</strong>：包括低层级节点（如 <code>Django-search</code>、<code>Mongodb</code> 等）和高层级节点（如 <code>API Server</code>、<code>Sdn-controller</code> 等）的时间序列度量数据。</li>
 <li><strong>系统关键性能指标（KPIs）</strong>：反映系统整体状态的指标，用于评估系统健康状况。</li>
 <li><strong>层次化因果网络结构</strong>：由图神经网络自动学习得到的因果关系图。</li>
 </ul>
-<h4 id="输出：">输出：</h4>
+<h4 id="输出结果结果：">输出结果结果：</h4>
 <ul>
 <li><strong>根因列表</strong>：前 K 个具有最高因果得分的系统实体，被认为是导致系统故障的根本原因。</li>
 <li><strong>因果传播路径</strong>：展示从根因到其他节点的因果效应传播路径，帮助理解故障扩散机制。</li>
 </ul>
 <hr>
-<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
-<h4 id="技术亮点：">技术亮点：</h4>
+<h3 id="3-核心技术分析">3. 核心技术分析</h3>
+<h4 id="主要优势：">主要优势：</h4>
 <ol>
 <li><p><strong>层次化因果建模</strong>：</p>
 <ul>
@@ -143,7 +143,7 @@
 </ul>
 </li>
 </ol>
-<h4 id="技术不足：">技术不足：</h4>
+<h4 id="局限性：">局限性：</h4>
 <ol>
 <li><p><strong>计算复杂度较高</strong>：</p>
 <ul>

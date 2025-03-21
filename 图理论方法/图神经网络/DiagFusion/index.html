@@ -58,7 +58,7 @@
         <div class="content-column">
             <div class="content-section">
                 <h2>方法详细说明</h2>
-                <h3 id="1-根据流程图讲一遍论文提出的模型的流程">1. 根据流程图讲一遍论文提出的模型的流程</h3>
+                <h3 id="1-模型架构与工作流程">1. 模型架构与工作流程</h3>
 <p>根据论文中的 <strong>Figure 3</strong>（DiagFusion 的训练框架），以下是 DiagFusion 模型的整体流程：</p>
 <h4 id="步骤-1：事件提取与序列化"><strong>步骤 1：事件提取与序列化</strong></h4>
 <ul>
@@ -117,8 +117,8 @@
 </li>
 </ul>
 <hr>
-<h3 id="2-总结其输入输出">2. 总结其输入输出</h3>
-<h4 id="输入："><strong>输入</strong>：</h4>
+<h3 id="2-输入数据与输出结果">2. 输入数据与输出结果</h3>
+<h4 id="输入数据："><strong>输入数据</strong>：</h4>
 <ul>
 <li><strong>Trace</strong>：调用链数据，记录用户请求的执行路径。</li>
 <li><strong>Log</strong>：日志数据，记录服务实例的硬件和软件事件。</li>
@@ -126,14 +126,14 @@
 <li><strong>Deployment Data</strong>：微服务系统的部署信息，描述实例之间的依赖关系。</li>
 <li><strong>Historical Failure Data</strong>：历史故障数据，用于训练模型。</li>
 </ul>
-<h4 id="输出："><strong>输出</strong>：</h4>
+<h4 id="输出结果："><strong>输出结果</strong>：</h4>
 <ul>
 <li><strong>Root Cause Instance</strong>：故障的根本原因实例。</li>
 <li><strong>Failure Type</strong>：故障的类型（如 CPU 相关故障、内存相关故障等）。</li>
 </ul>
 <hr>
-<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
-<h4 id="技术亮点："><strong>技术亮点</strong>：</h4>
+<h3 id="3-核心技术分析">3. 核心技术分析</h3>
+<h4 id="主要优势："><strong>主要优势</strong>：</h4>
 <ol>
 <li><p><strong>多模态数据融合</strong>：</p>
 <ul>
@@ -161,7 +161,7 @@
 </ul>
 </li>
 </ol>
-<h4 id="技术不足："><strong>技术不足</strong>：</h4>
+<h4 id="局限性："><strong>局限性</strong>：</h4>
 <ol>
 <li><p><strong>对缺失模态的鲁棒性</strong>：</p>
 <ul>
