@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微调LLM - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">微调LLM</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../..//LLM%E6%96%B9%E6%B3%95/index.html">LLM方法</a></li><li class="breadcrumb-item active" aria-current="page">微调LLM</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲一遍论文提出的模型的流程">1. 根据流程图讲一遍论文提出的模型的流程</h3>
+<h4 id="整体架构"><strong>整体架构</strong></h4>
+<p>RCACopilot 的架构分为两个主要阶段：<strong>诊断信息收集阶段（Collection Stage）</strong> 和 <strong>根因预测阶段（Prediction Stage）</strong>。以下是具体流程：</p>
+<hr>
+<h4 id="1-诊断信息收集阶段（collection-stage）"><strong>(1) 诊断信息收集阶段（Collection Stage）</strong></h4>
+<ol>
+<li><p><strong>事件解析（Incident Parsing）</strong>：</p>
+<ul>
+<li>当一个新事件（Incoming Incident）进入系统时，首先进行事件解析。事件包含以下关键信息：<ul>
+<li>ID</li>
+<li>Title（事件标题）</li>
+<li>Severity（严重性等级）</li>
+<li>OwningTenant（负责租户）</li>
+<li>OwningTeam（负责团队）</li>
+</ul>
+</li>
+<li>这些信息用于后续的处理和匹配。</li>
+</ul>
+</li>
+<li><p><strong>事件处理器匹配（Handler Matching）</strong>：</p>
+<ul>
+<li>系统根据事件的类型（Title 和 Severity 等信息）从数据库中加载预定义的事件处理器（Handlers）。每个事件处理器是为特定类型的告警设计的自动化工作流。</li>
+<li>每个事件处理器由一系列可复用的动作组成，这些动作反映了资深 OCEs（On-Call Engineers）的专业知识。</li>
+</ul>
+</li>
+<li><p><strong>诊断信息收集（Info. Collection）</strong>：</p>
+<ul>
+<li>匹配到合适的事件处理器后，系统开始从多个数据源（如日志、指标、跟踪信息等）自动收集与事件相关的诊断信息。</li>
+<li>收集到的诊断信息被存储在数据库中，以便后续分析。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="2-根因预测阶段（prediction-stage）"><strong>(2) 根因预测阶段（Prediction Stage）</strong></h4>
+<ol start="4">
+<li><p><strong>事件摘要（Incident Summarization）</strong>：</p>
+<ul>
+<li>使用大语言模型（LLM）对收集到的诊断信息进行摘要生成，将原始诊断信息压缩为更简洁、易读的形式。</li>
+<li>摘要后的诊断信息作为后续推理的基础。</li>
+</ul>
+</li>
+<li><p><strong>相似案例搜索（Neighbor Search）</strong>：</p>
+<ul>
+<li>将摘要后的诊断信息转换为嵌入向量，并存储在嵌入向量数据库中。</li>
+<li>使用 KNN（K-Nearest Neighbors）算法查找与当前事件最相似的历史案例，这些案例将作为推理的参考。</li>
+</ul>
+</li>
+<li><p><strong>根因预测（Root Cause Prediction）</strong>：</p>
+<ul>
+<li>LLM 结合当前事件的摘要信息和历史案例，通过链式推理（Chain-of-Thoughts, CoT）生成根因类别及其解释。</li>
+<li>预测结果包括根因类别标签和对应的解释，供 OCEs 审查。</li>
+</ul>
+</li>
+<li><p><strong>输出给 OCEs</strong>：</p>
+<ul>
+<li>最终的根因类别和解释以结构化形式输出给 OCEs，帮助他们快速定位问题并采取行动。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="2-输入输出总结">2. 输入输出总结</h3>
+<h4 id="输入："><strong>输入</strong>：</h4>
+<ul>
+<li><strong>Incoming Incident</strong>：包含以下字段：<ul>
+<li>ID</li>
+<li>Title（事件标题）</li>
+<li>Severity（严重性等级）</li>
+<li>OwningTenant（负责租户）</li>
+<li>OwningTeam（负责团队）</li>
+</ul>
+</li>
+</ul>
+<h4 id="输出："><strong>输出</strong>：</h4>
+<ul>
+<li><strong>Root cause category and explanation</strong>：根因类别及其解释，供 OCEs 审查和决策。</li>
+</ul>
+<hr>
+<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
+<h4 id="技术亮点："><strong>技术亮点</strong>：</h4>
+<ol>
+<li><p><strong>多源数据整合</strong>：</p>
+<ul>
+<li>RCACopilot 能够从多个数据源（日志、指标、跟踪信息等）自动收集诊断信息，避免了传统方法中手动收集数据的繁琐和错误。</li>
+<li>通过事件处理器（Handlers），系统能够灵活调整数据收集范围，确保收集的信息既全面又相关。</li>
+</ul>
+</li>
+<li><p><strong>大语言模型的应用</strong>：</p>
+<ul>
+<li>利用 LLM 进行事件摘要和根因预测，显著提高了分析效率和准确性。</li>
+<li>LLM 的链式推理能力（CoT）使得系统能够生成详细的根因解释，增强了可解释性。</li>
+</ul>
+</li>
+<li><p><strong>动态更新机制</strong>：</p>
+<ul>
+<li>事件处理器（Handlers）可以由 OCEs 动态修改和扩展，确保系统能够适应不断变化的云服务环境和新的故障模式。</li>
+</ul>
+</li>
+<li><p><strong>历史案例利用</strong>：</p>
+<ul>
+<li>通过嵌入向量数据库和 KNN 搜索，系统能够有效利用历史案例，提高根因预测的准确性和效率。</li>
+</ul>
+</li>
+<li><p><strong>实际部署经验</strong>：</p>
+<ul>
+<li>诊断信息收集模块已在微软内部部署超过四年，证明了系统的稳定性和实用性。</li>
+<li>根因预测模块也在微软的 Transport 服务中成功应用，展示了其在真实场景中的价值。</li>
+</ul>
+</li>
+</ol>
+<h4 id="技术不足："><strong>技术不足</strong>：</h4>
+<ol>
+<li><p><strong>依赖于预定义的事件处理器</strong>：</p>
+<ul>
+<li>系统的性能高度依赖于事件处理器的设计质量。如果某些事件类型没有对应的处理器，系统可能无法有效处理。</li>
+</ul>
+</li>
+<li><p><strong>LLM 的局限性</strong>：</p>
+<ul>
+<li>LLM 在处理长尾任务或领域特定任务时可能存在不稳定性和偏差，可能导致预测结果不一致。</li>
+<li>LLM 缺乏内在的领域知识，需要通过大量训练数据或提示工程来弥补这一不足。</li>
+</ul>
+</li>
+<li><p><strong>实时性挑战</strong>：</p>
+<ul>
+<li>对于某些紧急事件，LLM 的推理过程可能需要一定时间，影响系统的实时响应能力。</li>
+</ul>
+</li>
+<li><p><strong>数据质量和标注依赖</strong>：</p>
+<ul>
+<li>系统的性能受到诊断信息质量和根因类别标注的影响。如果标注不准确或数据质量较差，可能会导致预测误差。</li>
+</ul>
+</li>
+<li><p><strong>监控覆盖范围限制</strong>：</p>
+<ul>
+<li>如果监控系统未能检测到某些事件，或者缺乏相应的事件处理器，RCACopilot 的适用性会受到限制。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结">总结</h3>
+<p>RCACopilot 是一个创新的云服务故障根因分析系统，通过结合事件处理器和大语言模型，实现了高效的多源数据收集和根因预测。其技术亮点在于自动化、可扩展性和高精度，但在事件处理器的动态维护、LLM 的稳定性以及实时性等方面仍存在一定的改进空间。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="mermaid-2025321 144311.png" alt="微调LLM流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

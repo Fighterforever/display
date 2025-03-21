@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REASON - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">REASON</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../../..//%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/index.html">深度学习方法</a></li><li class="breadcrumb-item"><a href="../../..//%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/%E5%9B%BE%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E6%9E%B6%E6%9E%84/index.html">图神经网络架构</a></li><li class="breadcrumb-item active" aria-current="page">REASON</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲一遍这个论文提出模型的流程">1. 根据流程图讲一遍这个论文提出模型的流程</h3>
+<h4 id="流程图概述：">流程图概述：</h4>
+<p>该图展示了复杂系统中的<strong>层次化因果网络（Hierarchical Causal Networks）</strong>，其中包含多个相互依赖的子网络。具体来说，图中分为三个主要部分：<code>Compute-1</code>、<code>Compute-2</code> 和 <code>Infra-1</code>，每个部分代表一个子网络或层级。这些子网络通过跨层边连接，形成一个多层次的因果结构。</p>
+<h4 id="流程分解：">流程分解：</h4>
+<ol>
+<li><p><strong>输入数据</strong>：</p>
+<ul>
+<li>系统监控数据（如时间序列指标），包括低层级节点（如 <code>Django-search</code>、<code>Mongodb</code> 等）和高层级节点（如 <code>API Server</code>、<code>Sdn-controller</code> 等）的度量数据。</li>
+<li>系统关键性能指标（KPIs），用于评估系统的整体状态。</li>
+</ul>
+</li>
+<li><p><strong>层次化因果发现（Topological Causal Discovery）</strong>：</p>
+<ul>
+<li><strong>低层级因果关系建模</strong>：<ul>
+<li>在每个子网络内部（如 <code>Compute-1</code> 和 <code>Compute-2</code>），使用层次化图神经网络（Hierarchical GNN）学习节点之间的因果关系。</li>
+<li>例如，在 <code>Compute-1</code> 中，<code>Django-search</code>、<code>Payment</code>、<code>Ratings</code> 和 <code>Redis</code> 之间存在因果关系，通过分析它们的时间序列数据，学习到这些节点之间的非线性因果关系。</li>
+</ul>
+</li>
+<li><strong>跨层级因果关系建模</strong>：<ul>
+<li>学习不同子网络之间的因果关系，例如 <code>Compute-1</code> 和 <code>Compute-2</code> 之间的因果传播路径。</li>
+<li>图中红色虚线表示因果效应从 <code>Compute-1</code> 的 <code>Django-search</code> 节点传播到 <code>Compute-2</code> 的 <code>Mongodb</code> 和 <code>Mysql</code> 节点，最终影响到 <code>Infra-1</code> 的 <code>Sdn</code> 节点。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>个体因果发现（Individual Causal Discovery）</strong>：</p>
+<ul>
+<li>对每个系统实体的度量数据（时间序列）进行分析，识别异常波动模式。</li>
+<li>使用极值理论（Extreme Value Theory）估计每个节点成为根因的可能性，特别是针对短时故障（如 fail-stop 故障）的情况。</li>
+</ul>
+</li>
+<li><p><strong>因果整合（Causal Integration）</strong>：</p>
+<ul>
+<li>将层次化因果得分（Topological Causal Score）与个体因果得分（Individual Causal Score）结合，通过参数 γ 进行加权融合。</li>
+<li>最终输出前 K 个具有最高因果得分的节点作为根因。</li>
+</ul>
+</li>
+<li><p><strong>输出结果</strong>：</p>
+<ul>
+<li>确定系统故障的根因，即导致系统问题的根本原因。</li>
+<li>提供因果传播路径的解释，帮助运维人员快速定位问题根源。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="2-输入与输出总结">2. 输入与输出总结</h3>
+<h4 id="输入：">输入：</h4>
+<ul>
+<li><strong>系统监控数据</strong>：包括低层级节点（如 <code>Django-search</code>、<code>Mongodb</code> 等）和高层级节点（如 <code>API Server</code>、<code>Sdn-controller</code> 等）的时间序列度量数据。</li>
+<li><strong>系统关键性能指标（KPIs）</strong>：反映系统整体状态的指标，用于评估系统健康状况。</li>
+<li><strong>层次化因果网络结构</strong>：由图神经网络自动学习得到的因果关系图。</li>
+</ul>
+<h4 id="输出：">输出：</h4>
+<ul>
+<li><strong>根因列表</strong>：前 K 个具有最高因果得分的系统实体，被认为是导致系统故障的根本原因。</li>
+<li><strong>因果传播路径</strong>：展示从根因到其他节点的因果效应传播路径，帮助理解故障扩散机制。</li>
+</ul>
+<hr>
+<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
+<h4 id="技术亮点：">技术亮点：</h4>
+<ol>
+<li><p><strong>层次化因果建模</strong>：</p>
+<ul>
+<li>通过分层图结构捕获系统中的多层次因果关系，能够同时建模同一层级内的因果关系（intra-level）和跨层级的因果关系（inter-level）。</li>
+<li>层次化图神经网络（Hierarchical GNN）能够有效学习非线性因果关系，提升因果发现的准确性。</li>
+</ul>
+</li>
+<li><p><strong>结合拓扑与个体因果分析</strong>：</p>
+<ul>
+<li>不仅考虑系统整体的因果结构（拓扑因果），还关注单个系统实体的异常波动模式（个体因果）。</li>
+<li>通过融合两种因果得分，能够更全面地识别根因，特别是在短时故障场景下表现优异。</li>
+</ul>
+</li>
+<li><p><strong>网络传播模拟</strong>：</p>
+<ul>
+<li>利用随机游走算法模拟因果效应在层次化因果网络中的传播，为根因定位提供拓扑指导。</li>
+<li>通过反向分析，能够追溯故障的源头，增强模型的可解释性。</li>
+</ul>
+</li>
+<li><p><strong>自动学习因果关系</strong>：</p>
+<ul>
+<li>模型无需依赖领域知识或手动规则，能够直接从监控数据中自动学习因果关系，适用于多种复杂系统。</li>
+</ul>
+</li>
+</ol>
+<h4 id="技术不足：">技术不足：</h4>
+<ol>
+<li><p><strong>计算复杂度较高</strong>：</p>
+<ul>
+<li>层次化图神经网络的训练涉及多层嵌套结构，计算开销较大，可能对大规模系统不友好。</li>
+<li>随着系统规模的增加，模型的训练时间和资源需求会显著上升。</li>
+</ul>
+</li>
+<li><p><strong>对数据质量的依赖</strong>：</p>
+<ul>
+<li>模型的效果高度依赖于监控数据的质量。如果数据存在噪声、缺失或采样频率不足，可能导致因果关系学习不准确。</li>
+<li>特别是对于短时故障（如 fail-stop 故障），需要高频率的监控数据才能捕捉到异常波动。</li>
+</ul>
+</li>
+<li><p><strong>参数敏感性</strong>：</p>
+<ul>
+<li>模型中涉及多个超参数（如 GNN 层数 L、融合权重 γ 等），参数选择对性能有较大影响。</li>
+<li>参数调优过程较为繁琐，可能需要大量实验来确定最优配置。</li>
+</ul>
+</li>
+<li><p><strong>因果关系的假设限制</strong>：</p>
+<ul>
+<li>模型假设因果关系是稳定的，但在实际系统中，因果关系可能会随时间变化。</li>
+<li>对于动态变化的系统，模型可能无法实时适应新的因果结构。</li>
+</ul>
+</li>
+<li><p><strong>可扩展性挑战</strong>：</p>
+<ul>
+<li>当系统规模进一步扩大时，层次化因果网络的复杂度会迅速增长，可能导致模型难以处理超大规模系统。</li>
+<li>需要进一步研究如何在保持性能的同时降低模型的计算复杂度。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结">总结</h3>
+<p>该论文提出的模型通过层次化图神经网络和因果分析方法，实现了对复杂系统中根因的有效定位。其技术亮点在于能够同时建模多层次因果关系，并结合拓扑和个体因果分析，但同时也面临计算复杂度高、对数据质量依赖性强等挑战。未来可以进一步优化模型的效率和鲁棒性，以更好地应对大规模和动态变化的系统场景。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="截屏2025-03-21 14.23.35.png" alt="REASON流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

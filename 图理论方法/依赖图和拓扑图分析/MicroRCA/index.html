@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroRCA - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">MicroRCA</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../../..//%E5%9B%BE%E7%90%86%E8%AE%BA%E6%96%B9%E6%B3%95/index.html">图理论方法</a></li><li class="breadcrumb-item"><a href="../../..//%E5%9B%BE%E7%90%86%E8%AE%BA%E6%96%B9%E6%B3%95/%E4%BE%9D%E8%B5%96%E5%9B%BE%E5%92%8C%E6%8B%93%E6%89%91%E5%9B%BE%E5%88%86%E6%9E%90/index.html">依赖图和拓扑图分析</a></li><li class="breadcrumb-item active" aria-current="page">MicroRCA</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲一遍论文提出的模型的流程"><strong>1. 根据流程图讲一遍论文提出的模型的流程</strong></h3>
+<p>根据论文内容和提供的流程图，该模型的完整流程如下：</p>
+<h4 id="1-数据采集（data-collection）"><strong>(1) 数据采集（Data Collection）</strong></h4>
+<ul>
+<li><strong>输入</strong>：从微服务运行时环境收集多源数据，包括应用层、操作系统层和网络层的指标。<ul>
+<li>应用层指标：如响应时间（latency）、业务特定指标等。</li>
+<li>操作系统层指标：如容器CPU利用率（ctn_cpu）、内存使用率（ctn_memory）等。</li>
+<li>网络层指标：如网络流量（ctn_network）等。</li>
+</ul>
+</li>
+<li><strong>目标</strong>：为后续异常检测和根因分析提供基础数据。</li>
+</ul>
+<h4 id="2-异常检测（anomaly-detection）"><strong>(2) 异常检测（Anomaly Detection）</strong></h4>
+<ul>
+<li><strong>输入</strong>：来自数据采集阶段的指标数据。</li>
+<li><strong>方法</strong>：使用无监督学习方法（BIRCH聚类算法）检测服务间响应时间的异常。<ul>
+<li>当检测到某个服务对之间的响应时间显著偏离正常范围时，判定为异常，并触发后续的性能诊断流程。</li>
+</ul>
+</li>
+<li><strong>输出</strong>：判断是否存在异常。如果存在异常，则进入下一步；否则返回数据采集阶段继续监控。</li>
+</ul>
+<h4 id="3-嫌疑服务定位（culprit-service-localization-csl）"><strong>(3) 嫌疑服务定位（Culprit Service Localization, CSL）</strong></h4>
+<ul>
+<li><strong>输入</strong>：异常检测模块识别出的异常服务对。</li>
+<li><strong>方法</strong>：<ol>
+<li>构建服务依赖图（Service Dependency Graph），不仅包含服务调用路径，还考虑节点共置关系（即在同一台机器上运行的服务）。</li>
+<li>提取异常子图（Anomalous Subgraph），缩小故障范围。</li>
+<li>使用个性化PageRank算法对服务进行排名，结合服务响应时间和资源利用率（如容器CPU、内存等）计算转移概率矩阵和个人化PageRank向量，从而确定潜在的嫌疑服务。</li>
+</ol>
+</li>
+<li><strong>输出</strong>：一个按概率排序的嫌疑服务列表（Ranked culprit services）。</li>
+</ul>
+<h4 id="4-嫌疑指标定位（culprit-metric-localization-cml）"><strong>(4) 嫌疑指标定位（Culprit Metric Localization, CML）</strong></h4>
+<ul>
+<li><strong>输入</strong>：嫌疑服务定位模块输出的嫌疑服务列表。</li>
+<li><strong>方法</strong>：<ol>
+<li>对每个嫌疑服务，训练自动编码器（Autoencoder）模型。</li>
+<li>自动编码器通过重建误差（Reconstruction Error）识别异常指标。</li>
+<li>假设重建误差服从高斯分布，通过误差大小判断异常指标。</li>
+<li>分解重建误差，假设每个指标同等重要，进一步结合领域知识调整权重。</li>
+<li>根据重建误差贡献度，确定最可能的异常指标。</li>
+</ol>
+</li>
+<li><strong>输出</strong>：对于每个嫌疑服务，输出与其相关的异常指标列表。</li>
+</ul>
+<h4 id="5-输出结果（cause-list）"><strong>(5) 输出结果（Cause List）</strong></h4>
+<ul>
+<li><strong>输入</strong>：嫌疑指标定位模块输出的嫌疑服务及其相关异常指标。</li>
+<li><strong>输出</strong>：最终的根因列表，格式为 <code>(service, metrics list)</code> 对，例如：<pre><code>svc1: m1_list
+svc2: m2_list
+</code></pre>
+其中 <code>svc</code> 表示嫌疑服务，<code>m_list</code> 表示与该服务相关的异常指标列表。</li>
+</ul>
+<hr>
+<h3 id="2-总结其输入输出"><strong>2. 总结其输入输出</strong></h3>
+<h4 id="输入"><strong>输入</strong></h4>
+<ul>
+<li>微服务运行时的多源指标数据，包括：<ul>
+<li>应用层指标（如响应时间、业务特定指标）。</li>
+<li>操作系统层指标（如容器CPU、内存、网络流量等）。</li>
+<li>网络层指标（如服务间延迟）。</li>
+</ul>
+</li>
+</ul>
+<h4 id="输出"><strong>输出</strong></h4>
+<ul>
+<li>最终的根因列表，包含：<ul>
+<li>嫌疑服务（culprit services）。</li>
+<li>每个嫌疑服务对应的异常指标列表（culprit metrics）。</li>
+<li>格式为 <code>(service, metrics list)</code> 的对，帮助运维人员快速定位问题。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-技术亮点与不足"><strong>3. 技术亮点与不足</strong></h3>
+<h4 id="技术亮点"><strong>技术亮点</strong></h4>
+<ol>
+<li><p><strong>两阶段诊断框架</strong>：</p>
+<ul>
+<li>第一阶段（CSL）通过服务依赖图和个性化PageRank算法，高效定位嫌疑服务。</li>
+<li>第二阶段（CML）利用自动编码器，基于重建误差精确定位异常指标，实现细粒度的根因分析。</li>
+<li>结合全局依赖图和局部指标分析，提升诊断准确性。</li>
+</ul>
+</li>
+<li><p><strong>无需代码插桩</strong>：</p>
+<ul>
+<li>仅依赖微服务运行时暴露的指标，无需修改应用代码或插入额外逻辑，降低生产环境开销。</li>
+</ul>
+</li>
+<li><p><strong>自动编码器的应用</strong>：</p>
+<ul>
+<li>自动编码器能够适应指标间的复杂关系，有效捕捉异常模式。</li>
+<li>通过重建误差和高斯分布假设，精准识别异常指标。</li>
+</ul>
+</li>
+<li><p><strong>实验验证</strong>：</p>
+<ul>
+<li>在真实云环境中部署Sock-shop基准测试，模拟CPU过载和内存泄漏故障，验证模型的有效性。</li>
+<li>实验结果显示，嫌疑服务定位精度达到92%，嫌疑指标定位精度达到85.5%。</li>
+</ul>
+</li>
+</ol>
+<h4 id="技术不足"><strong>技术不足</strong></h4>
+<ol>
+<li><p><strong>对多指标关联场景的局限性</strong>：</p>
+<ul>
+<li>在某些复杂场景（如内存泄漏同时引发CPU波动）中，模型的准确率有所下降，因为多个指标可能同时表现出异常。</li>
+</ul>
+</li>
+<li><p><strong>依赖高斯分布假设</strong>：</p>
+<ul>
+<li>假设重建误差服从高斯分布，但实际场景中可能存在非高斯分布的情况，影响模型的鲁棒性。</li>
+</ul>
+</li>
+<li><p><strong>计算复杂度</strong>：</p>
+<ul>
+<li>构建服务依赖图和计算个性化PageRank需要一定的计算开销，尤其是在大规模微服务架构中。</li>
+</ul>
+</li>
+<li><p><strong>对动态变化的适应性</strong>：</p>
+<ul>
+<li>自动编码器的训练依赖于正常状态的数据，当微服务架构或运行环境发生变化时，可能需要重新训练模型，增加维护成本。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结"><strong>总结</strong></h3>
+<p>该论文提出了一种基于深度学习的微服务性能诊断系统，通过两阶段方法（嫌疑服务定位和嫌疑指标定位）实现了细粒度的根因分析。系统具有无需代码插桩、高效定位嫌疑服务和指标的技术亮点，但在处理多指标关联异常和动态变化场景时仍存在一定局限性。未来可进一步优化模型以覆盖更多类型的根因，并提升在复杂场景中的鲁棒性。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="截屏2025-03-21 11.53.52.png" alt="MicroRCA流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

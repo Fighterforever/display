@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DéjàVu - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">DéjàVu</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../../..//%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/index.html">深度学习方法</a></li><li class="breadcrumb-item"><a href="../../..//%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/%E5%BE%AA%E7%8E%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E6%9E%B6%E6%9E%84/index.html">循环神经网络架构</a></li><li class="breadcrumb-item active" aria-current="page">DéjàVu</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲一遍论文提出的模型的流程">1. 根据流程图讲一遍论文提出的模型的流程</h3>
+<p>根据图中的流程，DejaVu 模型的整体工作流程可以分为以下几个步骤：</p>
+<h4 id="1-监控系统触发故障检测"><strong>(1) 监控系统触发故障检测</strong></h4>
+<ul>
+<li><strong>Monitoring System</strong>: 在在线服务系统中，监控系统持续收集系统的指标数据（Metrics）和依赖关系图（FDG，Failure Dependency Graph）。</li>
+<li><strong>Alerts</strong>: 当系统发生故障时，监控系统会发出警报（Alerts），触发 DejaVu 的故障定位流程。</li>
+</ul>
+<h4 id="2-离线训练阶段"><strong>(2) 离线训练阶段</strong></h4>
+<ul>
+<li><strong>Historical failures</strong>: 使用历史故障数据进行离线训练。历史故障数据包括：<ul>
+<li><strong>Metrics</strong>: 历史故障期间的指标数据。</li>
+<li><strong>FDG</strong>: 历史故障期间的依赖关系图。</li>
+</ul>
+</li>
+<li><strong>Localization model</strong>: 在离线阶段，使用这些历史数据训练一个本地化模型（Localization model）。该模型的目标是学习如何根据当前的指标数据和依赖关系图预测故障单元。</li>
+</ul>
+<h4 id="3-在线推理阶段"><strong>(3) 在线推理阶段</strong></h4>
+<ul>
+<li><strong>Trigger</strong>: 当新故障发生时，监控系统将当前的指标数据（Metrics）和最新的依赖关系图（FDG）输入到已训练的本地化模型中。</li>
+<li><strong>Localization results</strong>: 模型输出故障单元的可疑评分（Suspicious Score），推荐最可能的故障单元。</li>
+</ul>
+<h4 id="4-解释与反馈"><strong>(4) 解释与反馈</strong></h4>
+<ul>
+<li><strong>Interpretation</strong>: 模型不仅提供故障单元的推荐结果，还生成局部解释（Local interpretation）和全局解释（Global interpretation）：<ul>
+<li><strong>Local interpretation</strong>: 对单次故障预测提供具体的解释，例如通过相似的历史故障案例（如 LIME 方法）。</li>
+<li><strong>Global interpretation</strong>: 提供全局可解释性规则，例如通过决策树拟合模型行为，生成人类可读的规则。</li>
+</ul>
+</li>
+<li><strong>Ground truths</strong>: 工程师根据模型的推荐结果和解释，确认实际的故障单元（Ground truths），并提供反馈以进一步优化模型。</li>
+</ul>
+<h4 id="5-工程师介入"><strong>(5) 工程师介入</strong></h4>
+<ul>
+<li><strong>Engineers</strong>: 工程师根据模型的推荐结果和解释，快速识别故障类型并采取缓解措施。</li>
+<li><strong>Feedback</strong>: 工程师的反馈被用于更新历史故障数据，从而不断优化模型的性能。</li>
+</ul>
+<hr>
+<h3 id="2-总结其输入输出">2. 总结其输入输出</h3>
+<h4 id="输入："><strong>输入：</strong></h4>
+<ol>
+<li><strong>Metrics</strong>: 故障期间的指标数据，包括时间序列特征（如响应时间、CPU 使用率等）。</li>
+<li><strong>FDG</strong>: 故障期间的依赖关系图，描述系统组件之间的依赖关系。</li>
+<li><strong>Historical failures</strong>: 历史故障数据，包括历史故障的指标数据和依赖关系图。</li>
+</ol>
+<h4 id="输出："><strong>输出：</strong></h4>
+<ol>
+<li><strong>Localization results</strong>: 推荐的故障单元及其可疑评分（Suspicious Score）。</li>
+<li><strong>Local interpretation</strong>: 单次故障预测的局部解释，帮助工程师理解特定故障的原因。</li>
+<li><strong>Global interpretation</strong>: 全局可解释性规则，帮助工程师理解模型的行为模式。</li>
+</ol>
+<hr>
+<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
+<h4 id="技术亮点："><strong>技术亮点：</strong></h4>
+<ol>
+<li><p><strong>结合历史数据与依赖关系图</strong>：</p>
+<ul>
+<li>DejaVu 利用历史故障数据和依赖关系图（FDG）进行训练，能够捕捉复杂的故障传播路径，提高故障定位的准确性。</li>
+</ul>
+</li>
+<li><p><strong>深度学习与图注意力网络（GAT）</strong>：</p>
+<ul>
+<li>使用 GRU 捕捉指标的时间序列特征，并结合 GAT 聚合 FDG 中节点间的依赖关系，有效建模复杂系统中的依赖结构。</li>
+</ul>
+</li>
+<li><p><strong>可解释性设计</strong>：</p>
+<ul>
+<li>提供局部解释（如 LIME）和全局解释（如决策树），帮助工程师理解模型的推荐结果，增强了模型的实用性和可信度。</li>
+</ul>
+</li>
+<li><p><strong>高效性</strong>：</p>
+<ul>
+<li>训练模型耗时较少（数十分钟），且在线推理速度极快（小于一秒），适用于大规模在线服务系统。</li>
+</ul>
+</li>
+<li><p><strong>泛化能力</strong>：</p>
+<ul>
+<li>在未见过的故障场景中表现稳定，能够在不同系统上取得较好的效果。</li>
+</ul>
+</li>
+</ol>
+<h4 id="不足之处："><strong>不足之处：</strong></h4>
+<ol>
+<li><p><strong>跨系统迁移性有限</strong>：</p>
+<ul>
+<li>不同在线服务系统可能定义完全不同的故障单元，导致无法直接将训练好的模型迁移到其他系统。未来可以通过转移学习在类似系统之间实现迁移。</li>
+</ul>
+</li>
+<li><p><strong>对概念漂移的适应性</strong>：</p>
+<ul>
+<li>现代在线服务系统频繁变化，可能导致概念漂移。在缺乏足够新故障数据的情况下，需要重新分析指标的概念漂移模式并调整历史指标。</li>
+</ul>
+</li>
+<li><p><strong>依赖高质量的历史数据</strong>：</p>
+<ul>
+<li>模型的性能高度依赖于历史故障数据的质量和多样性。如果历史数据不足或不准确，可能会影响模型的训练效果。</li>
+</ul>
+</li>
+<li><p><strong>解释方法的局限性</strong>：</p>
+<ul>
+<li>局部解释方法（如 LIME）可能会对相似故障给出非常不同的指标重要性，容易造成混淆。全局解释虽然提供了规则，但可能不够直观。</li>
+</ul>
+</li>
+<li><p><strong>实施复杂性</strong>：</p>
+<ul>
+<li>实现 DejaVu 需要较高的技术门槛，包括深度学习模型的设计、图神经网络的训练以及可解释性模块的开发，这对工程团队提出了挑战。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结">总结</h3>
+<p>DejaVu 是一个针对在线服务系统重复性故障的可操作且可解释的故障定位模型，通过结合历史数据、依赖关系图和深度学习技术，实现了高效、精准的故障定位。其技术亮点在于深度学习与图注意力网络的结合，以及丰富的可解释性设计，但在跨系统迁移性和对概念漂移的适应性方面仍存在一定的局限性。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="截屏2025-03-21 14.18.02.png" alt="DéjàVu流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

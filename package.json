@@ -1,0 +1,30 @@
+{
+  "name": "microservice-root-cause-analysis",
+  "version": "1.0.0",
+  "description": "微服务架构根因分析方法展示网站",
+  "main": "index.html",
+  "scripts": {
+    "generate": "node generate-pages.js",
+    "build": "npm install && node generate-pages.js",
+    "deploy": "gh-pages -d .",
+    "preview": "npx serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fighterforever/display.git"
+  },
+  "homepage": "https://fighterforever.github.io/display/",
+  "keywords": [
+    "microservice",
+    "root cause analysis",
+    "fault localization"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "marked": "^5.1.2"
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
+  }
+}

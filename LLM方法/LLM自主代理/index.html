@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM自主代理 - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">LLM自主代理</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../..//LLM%E6%96%B9%E6%B3%95/index.html">LLM方法</a></li><li class="breadcrumb-item active" aria-current="page">LLM自主代理</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲一遍这个论文提出模型的流程">1. 根据流程图讲一遍这个论文提出模型的流程</h3>
+<h4 id="rcagent-的工作流程（action-cycle-of-rcagent）"><strong>RCAgent 的工作流程（Action Cycle of RCAgent）</strong></h4>
+<p>RCAgent 是一个基于工具增强的大语言模型（LLM）的自主代理框架，用于云系统的根本原因分析（RCA）。其核心是一个“思考-行动-观察”循环（Thought-Action-Observation Loop），如下图所示：</p>
+<p><img src="https://i.imgur.com/your_image_url.png" alt="Action Cycle of RCAgent"></p>
+<h4 id="详细流程分解："><strong>详细流程分解：</strong></h4>
+<ol>
+<li><p><strong>初始化阶段</strong>：</p>
+<ul>
+<li><strong>Framework Rules</strong>：框架规则，定义了 RACAgent 的基本行为和决策逻辑。</li>
+<li><strong>Task Requirement</strong>：任务需求，包括 RCA 任务的具体目标和指令。</li>
+<li><strong>Tools Documentation</strong>：工具文档，描述所有可用工具的功能和使用方法。</li>
+<li>这些信息被加载到 <strong>Controller Agent Memory</strong> 中，作为控制器代理的核心记忆。</li>
+</ul>
+</li>
+<li><p><strong>思考与行动阶段（Thought and Action）</strong>：</p>
+<ul>
+<li>控制器代理根据当前记忆（Controller Agent Memory）生成一个动作（Action），并将其解析为可执行的形式（Parsed Action）。</li>
+<li>动作可以是直接执行的命令，也可以是调用专家代理（Expert Agent）的任务。</li>
+</ul>
+</li>
+<li><p><strong>环境交互阶段（Environment Interaction）</strong>：</p>
+<ul>
+<li>如果动作需要与环境交互（例如查询日志系统、数据库或代码仓库），则通过环境接口执行该动作。</li>
+<li>环境返回的结果会被记录为观察数据（Observation），并通过快照机制（Snapshot）存储在键值存储（Key-value store）中。</li>
+</ul>
+</li>
+<li><p><strong>错误处理阶段（Error Handling）</strong>：</p>
+<ul>
+<li>如果在执行过程中遇到错误（Error?），系统会捕获错误日志（Error log），并进入错误处理流程。</li>
+<li>错误处理后，系统会重新尝试获取真实的观察数据（Real Observation / Error Traceback）。</li>
+</ul>
+</li>
+<li><p><strong>专家代理阶段（Expert Agent Prompt）</strong>：</p>
+<ul>
+<li>如果动作需要调用专家代理（Agent?），则将任务传递给专家代理。</li>
+<li>专家代理完成任务后，返回结果，并更新控制器代理的记忆。</li>
+</ul>
+</li>
+<li><p><strong>观察管理阶段（Observation Management）</strong>：</p>
+<ul>
+<li>观察数据通过快照机制（Snapshot）进行压缩和存储，以解决上下文长度限制问题。</li>
+<li>快照头（observation head）仅包含观察数据的头部信息，而完整的观察数据存储在键值存储中，以便后续访问。</li>
+</ul>
+</li>
+<li><p><strong>循环迭代</strong>：</p>
+<ul>
+<li>控制器代理根据新的观察数据和记忆，继续生成新的动作，重复上述流程，直到任务完成或达到终止条件。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="2-总结其输入输出">2. 总结其输入输出</h3>
+<h4 id="输入："><strong>输入</strong>：</h4>
+<ul>
+<li><strong>Framework Rules</strong>：框架规则，定义代理的行为逻辑。</li>
+<li><strong>Task Requirement</strong>：任务需求，包括 RCA 任务的具体目标和指令。</li>
+<li><strong>Tools Documentation</strong>：工具文档，描述所有可用工具的功能和使用方法。</li>
+<li><strong>Environment Data</strong>：来自环境的数据，包括日志系统、数据库和代码仓库中的信息。</li>
+</ul>
+<h4 id="输出："><strong>输出</strong>：</h4>
+<ul>
+<li><strong>Root Cause Prediction</strong>：根本原因预测。</li>
+<li><strong>Solution Generation</strong>：解决方案生成。</li>
+<li><strong>Evidence Aggregation</strong>：证据聚合。</li>
+<li><strong>Responsibility Determination</strong>：责任判定。</li>
+<li><strong>Finalized Results</strong>：最终的 RCA 结果，以结构化格式（如 JSON）输出。</li>
+</ul>
+<hr>
+<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
+<h4 id="技术亮点："><strong>技术亮点</strong>：</h4>
+<ol>
+<li><p><strong>工具增强的自主代理</strong>：</p>
+<ul>
+<li>RCAgent 将 LLM 与工具结合，实现了自主决策和环境交互能力，突破了传统 LLM 的局限性。</li>
+<li>提供了代码分析工具和日志分析工具等专家代理，增强了对复杂数据的处理能力。</li>
+</ul>
+</li>
+<li><p><strong>快照机制（OBSK）</strong>：</p>
+<ul>
+<li>通过快照机制解决了 LLM 上下文长度限制的问题，能够在不丢失关键信息的情况下处理长文本数据。</li>
+</ul>
+</li>
+<li><p><strong>自一致性聚合（Self-Consistency Aggregation）</strong>：</p>
+<ul>
+<li>RCAgent 使用轨迹级自一致性采样（TSC）和 LLM 聚合方法，提高了结果的一致性和准确性，特别是在开放生成任务中表现突出。</li>
+</ul>
+</li>
+<li><p><strong>隐私保护</strong>：</p>
+<ul>
+<li>RCAgent 使用内部部署的 LLM 模型，避免了将敏感数据传输到外部 API，确保了数据隐私和安全性。</li>
+</ul>
+</li>
+<li><p><strong>稳定性优化</strong>：</p>
+<ul>
+<li>RCAgent 包含多种稳定性增强技术，如 JSON 修复（JsonRegen）、错误处理机制等，有效提升了系统的鲁棒性。</li>
+</ul>
+</li>
+<li><p><strong>实际应用验证</strong>：</p>
+<ul>
+<li>RCAgent 已在阿里巴巴云的实时计算平台上部署，用于诊断异常流处理作业，证明了其在工业级场景中的有效性。</li>
+</ul>
+</li>
+</ol>
+<h4 id="技术不足："><strong>技术不足</strong>：</h4>
+<ol>
+<li><p><strong>依赖本地部署的 LLM</strong>：</p>
+<ul>
+<li>RCAgent 使用本地部署的 LLM 模型，虽然解决了隐私问题，但也限制了模型的规模和性能，可能无法充分利用最先进的大模型能力。</li>
+</ul>
+</li>
+<li><p><strong>工具设计的复杂性</strong>：</p>
+<ul>
+<li>RCAgent 的工具设计需要高度定制化，尤其是针对云系统的特定需求。这可能导致工具开发和维护的成本较高。</li>
+</ul>
+</li>
+<li><p><strong>上下文长度限制</strong>：</p>
+<ul>
+<li>即使使用了快照机制，仍需面对 LLM 上下文长度的限制。对于极长的文本数据，可能仍需进一步优化。</li>
+</ul>
+</li>
+<li><p><strong>通用性挑战</strong>：</p>
+<ul>
+<li>RCAgent 主要针对云系统的 RCA 任务设计，其通用性可能有限，难以直接应用于其他领域。</li>
+</ul>
+</li>
+<li><p><strong>资源消耗</strong>：</p>
+<ul>
+<li>RCAgent 在处理大规模数据时，可能会消耗较多的计算资源，尤其是在多轮迭代和专家代理调用的情况下。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结">总结</h3>
+<p>RCAgent 是一个创新的工具增强型 LLM 自主代理框架，通过独特的设计解决了云系统 RCA 的多个挑战，包括隐私保护、上下文长度限制和稳定性问题。其在阿里巴巴云的实际部署验证了其有效性，但在模型规模、工具通用性和资源消耗等方面仍存在一定的改进空间。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="截屏2025-03-21 14.33.04.png" alt="LLM自主代理流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TraceAnomaly - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">TraceAnomaly</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../../..//%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/index.html">深度学习方法</a></li><li class="breadcrumb-item"><a href="../../..//%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/%E8%87%AA%E7%BC%96%E7%A0%81%E5%99%A8%E6%9E%B6%E6%9E%84/index.html">自编码器架构</a></li><li class="breadcrumb-item active" aria-current="page">TraceAnomaly</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲一遍论文提出模型的流程">1. 根据流程图讲一遍论文提出模型的流程</h3>
+<h4 id="1-离线训练阶段（offline-training-for-a-service）"><strong>(1) 离线训练阶段（Offline Training for a service）</strong></h4>
+<ul>
+<li><strong>输入</strong>：历史调用链数据（Traces）。</li>
+<li><strong>步骤</strong>：<ol>
+<li><strong>Service Trace Vector Construction</strong>：从历史调用链中提取特征，构建服务跟踪向量（Service Trace Vector, STV）。STV 是对调用链的一种结构化表示，包含了调用路径、时间戳、请求/响应信息等关键特征。</li>
+<li><strong>Unsupervised Training</strong>：使用无监督学习方法（如深度贝叶斯网络）对构建的 STV 进行训练，学习正常模式的分布。模型的目标是捕捉正常调用链的行为模式。</li>
+<li><strong>Model</strong>：训练完成后生成一个模型，该模型能够根据 STV 计算新调用链的似然度（likelihood），从而判断其是否异常。</li>
+<li><strong>Periodically Retrain</strong>：由于微服务架构可能频繁更新，模型需要定期重新训练以适应新的服务行为。</li>
+</ol>
+</li>
+</ul>
+<h4 id="2-在线检测阶段（online-detection-for-a-service）"><strong>(2) 在线检测阶段（Online Detection for a service）</strong></h4>
+<ul>
+<li><strong>输入</strong>：新到达的调用链（New Trace）。</li>
+<li><strong>步骤</strong>：<ol>
+<li><strong>Unseen Call Path Whitelist</strong>：首先检查新调用链的调用路径是否为系统中从未见过的路径。如果发现未见过的调用路径，直接将其标记为异常，并记录到白名单（Whitelist）中，以便后续处理。</li>
+<li><strong>Anomaly Detection - Likelihood Computation</strong>：对于已知调用路径的调用链，使用离线训练得到的模型计算其似然度（Likelihood）。模型会根据 STV 的特征分布，评估当前调用链与正常模式的偏离程度。</li>
+<li><strong>Root Cause Localization</strong>：如果调用链被判定为异常（即似然度低于某个阈值），系统将进一步进行根因定位（Root Cause Localization），找出导致异常的具体原因（例如，特定的服务或调用节点）。</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3 id="2-总结其输入输出">2. 总结其输入输出</h3>
+<h4 id="输入："><strong>输入</strong>：</h4>
+<ul>
+<li><strong>离线训练阶段</strong>：历史调用链数据（Traces）。</li>
+<li><strong>在线检测阶段</strong>：新到达的调用链（New Trace）。</li>
+</ul>
+<h4 id="输出："><strong>输出</strong>：</h4>
+<ul>
+<li><strong>离线训练阶段</strong>：训练好的模型（Model）。</li>
+<li><strong>在线检测阶段</strong>：<ul>
+<li>异常检测结果：标记调用链是否为异常。</li>
+<li>根因定位结果：如果调用链被标记为异常，则进一步定位异常的根本原因。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
+<h4 id="技术亮点："><strong>技术亮点</strong>：</h4>
+<ol>
+<li><strong>无监督学习</strong>：采用无监督学习方法（如深度贝叶斯网络）进行模型训练，无需标注数据，适用于大规模微服务系统的异常检测场景。</li>
+<li><strong>服务跟踪向量（STV）</strong>：通过构建 STV 对调用链进行结构化表示，能够有效捕获调用链中的关键特征，提升模型的表达能力。</li>
+<li><strong>动态更新机制</strong>：模型支持定期重新训练，能够适应微服务架构中频繁的服务更新和变化。</li>
+<li><strong>根因定位能力</strong>：在检测到异常后，能够进一步定位异常的根本原因，有助于快速排查问题。</li>
+<li><strong>白名单机制</strong>：通过白名单机制处理未见过的调用路径，避免误报，同时积累新的正常模式。</li>
+</ol>
+<h4 id="技术不足："><strong>技术不足</strong>：</h4>
+<ol>
+<li><strong>模型复杂性</strong>：深度贝叶斯网络的训练和推理过程可能较为复杂，计算开销较大，尤其是在大规模微服务环境中。</li>
+<li><strong>依赖历史数据质量</strong>：模型的性能高度依赖于历史调用链数据的质量。如果历史数据中存在噪声或异常，可能会导致模型学习到错误的正常模式。</li>
+<li><strong>冷启动问题</strong>：在服务刚上线或历史数据不足的情况下，模型可能无法准确学习正常模式，影响检测效果。</li>
+<li><strong>实时性挑战</strong>：在线检测阶段需要实时处理新到达的调用链，对系统的性能和延迟要求较高，尤其是在高并发场景下。</li>
+<li><strong>参数调优困难</strong>：模型的超参数（如似然度阈值）需要手动调整，缺乏自动化调优机制，可能导致误报或漏报。</li>
+</ol>
+<hr>
+<h3 id="总结">总结</h3>
+<p>该模型通过离线训练和在线检测两个阶段，实现了微服务调用链的无监督异常检测。其核心亮点在于利用无监督学习和结构化的服务跟踪向量，能够有效应对微服务架构的动态性和复杂性。然而，模型的复杂性、对历史数据的依赖以及实时性挑战等问题仍需进一步优化和改进。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="截屏2025-03-21 14.12.47.png" alt="TraceAnomaly流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

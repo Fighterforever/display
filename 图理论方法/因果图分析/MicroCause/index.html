@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroCause - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">MicroCause</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../../..//%E5%9B%BE%E7%90%86%E8%AE%BA%E6%96%B9%E6%B3%95/index.html">图理论方法</a></li><li class="breadcrumb-item"><a href="../../..//%E5%9B%BE%E7%90%86%E8%AE%BA%E6%96%B9%E6%B3%95/%E5%9B%A0%E6%9E%9C%E5%9B%BE%E5%88%86%E6%9E%90/index.html">因果图分析</a></li><li class="breadcrumb-item active" aria-current="page">MicroCause</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲解论文提出的模型流程">1. 根据流程图讲解论文提出的模型流程</h3>
+<p>根据论文内容和提供的流程图，MicroCause 模型的完整流程如下：</p>
+<h4 id="步骤-1：输入数据"><strong>步骤 1：输入数据</strong></h4>
+<ul>
+<li><strong>KPI（关键性能指标）</strong>：表示用户感知到的服务质量指标，例如 Web 响应时间（Web RT）。</li>
+<li><strong>Metrics（监控指标）</strong>：表示微服务内部及其上下游组件的性能指标，例如 Web QPS、JVM YGC Time、Middleware1 RT 等。</li>
+</ul>
+<h4 id="步骤-2：异常检测（anomaly-detection）"><strong>步骤 2：异常检测（Anomaly Detection）</strong></h4>
+<ul>
+<li>使用 SPOT 算法对 KPI 和 Metrics 进行异常检测。</li>
+<li>对每个时间点的指标值生成阈值，并判断是否超出高阈值或低阈值。</li>
+<li>输出每个指标的异常信息，包括：<ul>
+<li>是否异常（If Anomalous）</li>
+<li>异常时间（Anomaly Time）</li>
+<li>异常程度（Anomaly Degree）</li>
+</ul>
+</li>
+</ul>
+<h4 id="步骤-3：故障因果图学习（failure-casual-graph-learning）"><strong>步骤 3：故障因果图学习（Failure Casual Graph Learning）</strong></h4>
+<ul>
+<li>使用改进的 PCTS（Path Condition Time Series）算法构建因果图。</li>
+<li>PCTS 算法基于改进的 PC 算法，能够捕捉时间序列中的传播延迟。</li>
+<li>输入是时间范围内的监控指标数据（从故障发生前 4 小时到当前时刻）。</li>
+<li>输出是一个因果图，其中节点代表监控指标，边表示因果关系。</li>
+</ul>
+<h4 id="步骤-4：时间导向因果随机游走（temporal-cause-oriented-random-walk-tcorw）"><strong>步骤 4：时间导向因果随机游走（Temporal Cause Oriented Random Walk, TCORW）</strong></h4>
+<ul>
+<li>在因果图上进行随机游走，结合因果关系、异常信息（包括异常时间和异常程度）以及指标优先级。</li>
+<li>随机游走分为三个步骤：<ol>
+<li><strong>Forward Step</strong>：从结果指标走向原因指标，使用偏相关系数计算转移概率。</li>
+<li><strong>Backward Step</strong>：允许从原因指标走向结果指标，避免陷入与异常指标相关性低的节点。</li>
+<li><strong>Self Step</strong>：如果当前节点的邻居节点与异常指标的相关性都较低，则停留在当前节点。</li>
+</ol>
+</li>
+<li>输出每个指标的访问次数（Visit Time），并结合异常程度和指标优先级计算潜在根因得分（Potential Root Cause Score）。</li>
+</ul>
+<h4 id="步骤-5：根因排序"><strong>步骤 5：根因排序</strong></h4>
+<ul>
+<li>结合潜在根因得分、指标优先级和异常时间，对所有潜在根因进行排序。</li>
+<li>输出 Top N 的根因列表，包括：<ul>
+<li>指标名称（Metrics）</li>
+<li>异常时间（Anomaly Time）</li>
+<li>异常程度（Anomaly Degree）</li>
+<li>指标优先级（Level）</li>
+<li>访问次数（Visit Time）</li>
+<li>排名（Rank）</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-输入输出总结">2. 输入输出总结</h3>
+<h4 id="输入"><strong>输入</strong></h4>
+<ul>
+<li><strong>KPI</strong>：关键性能指标，如 Web RT。</li>
+<li><strong>Metrics</strong>：监控指标，包括上游、自身和下游组件的指标，如 Web QPS、JVM YGC Time、Middleware1 RT 等。</li>
+<li><strong>时间范围</strong>：故障发生前 4 小时到当前时刻的监控数据。</li>
+</ul>
+<h4 id="输出"><strong>输出</strong></h4>
+<ul>
+<li><strong>Top N Root Cause List</strong>：排名靠前的潜在故障根因列表，包含以下信息：<ul>
+<li><strong>Metrics</strong>：监控指标名称。</li>
+<li><strong>Anomaly Time</strong>：指标异常的时间。</li>
+<li><strong>Anomaly Degree</strong>：指标异常的程度。</li>
+<li><strong>Level</strong>：指标的优先级（Level 1、Level 2、Level 3）。</li>
+<li><strong>Visit Time</strong>：随机游走中该指标被访问的次数。</li>
+<li><strong>Rank</strong>：最终排名。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
+<h4 id="技术亮点"><strong>技术亮点</strong></h4>
+<ol>
+<li><p><strong>PCTS 算法</strong>：</p>
+<ul>
+<li>改进了传统的 PC 算法，能够捕捉时间序列中的传播延迟，更准确地建模指标间的因果关系。</li>
+<li>能够处理非独立同分布的数据，适用于微服务内部复杂的依赖关系。</li>
+</ul>
+</li>
+<li><p><strong>TCORW 方法</strong>：</p>
+<ul>
+<li>结合了因果关系、异常信息（异常时间和异常程度）以及指标优先级，提高了根因定位的准确性。</li>
+<li>使用偏相关系数消除混杂变量的影响，避免误判。</li>
+</ul>
+</li>
+<li><p><strong>综合考虑多维度信息</strong>：</p>
+<ul>
+<li>不仅依赖于指标间的相关性，还结合了异常时间、异常程度和指标优先级，使得根因定位更加全面和精准。</li>
+</ul>
+</li>
+<li><p><strong>高性能表现</strong>：</p>
+<ul>
+<li>在实验中，MicroCause 的 AC@5 准确率达到 98.7%，比最佳基线方法高出 33.4%。</li>
+<li>参数鲁棒性强，对 λ 和 ρ 的敏感度较低。</li>
+</ul>
+</li>
+</ol>
+<h4 id="不足"><strong>不足</strong></h4>
+<ol>
+<li><p><strong>对系统工具的依赖较少</strong>：</p>
+<ul>
+<li>微服务内部的依赖关系无法通过系统工具直接获取，完全依赖观测数据。</li>
+<li>如果监控数据不完整或噪声较大，可能会影响因果图的准确性。</li>
+</ul>
+</li>
+<li><p><strong>对异常检测的依赖</strong>：</p>
+<ul>
+<li>异常检测模块（SPOT）的性能直接影响后续步骤。如果异常检测不准确，可能导致错误的因果分析。</li>
+</ul>
+</li>
+<li><p><strong>复杂场景的适应性</strong>：</p>
+<ul>
+<li>在非常复杂的微服务架构中，可能存在更多的干扰因素，模型的性能可能会受到影响。</li>
+<li>对于某些特殊类型的故障（如突发性故障或长期累积性故障），模型的表现可能需要进一步验证。</li>
+</ul>
+</li>
+<li><p><strong>参数调整</strong>：</p>
+<ul>
+<li>虽然参数鲁棒性较好，但在实际部署中仍需根据具体场景调整参数（如 λ 和 ρ），增加了配置的复杂性。</li>
+</ul>
+</li>
+</ol>
+<h3 id="总结">总结</h3>
+<p>MicroCause 是一个用于微服务内部故障根因定位的框架，通过 PCTS 算法构建因果图，并结合 TCORW 方法进行根因推理。其核心优势在于能够准确捕捉时间序列中的因果关系，并综合考虑多种信息（因果关系、异常信息、指标优先级）。尽管在实验中表现出色，但仍需在复杂场景和实际部署中进一步验证其鲁棒性和适用性。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="截屏2025-03-21 11.56.14.png" alt="MicroCause流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

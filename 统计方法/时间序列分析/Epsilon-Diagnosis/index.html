@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epsilon-Diagnosis - 微服务架构根因分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../../../styles.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="../../../index.html">微服务根因分析</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#home">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#methods">分析方法</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../../index.html#about">关于项目</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <header class="detail-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 detail-content text-center">
+                    <h1 class="display-4 fw-bold mb-3">Epsilon-Diagnosis</h1>
+                    <p class="lead mb-0">微服务架构中的根因分析方法</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../../..//index.html">首页</a></li><li class="breadcrumb-item"><a href="../../..//%E7%BB%9F%E8%AE%A1%E6%96%B9%E6%B3%95/index.html">统计方法</a></li><li class="breadcrumb-item"><a href="../../..//%E7%BB%9F%E8%AE%A1%E6%96%B9%E6%B3%95/%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E5%88%86%E6%9E%90/index.html">时间序列分析</a></li><li class="breadcrumb-item active" aria-current="page">Epsilon-Diagnosis</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- 主要内容 -->
+    <main class="container py-5">
+        
+    <div class="method-detail-container">
+        <div class="content-column">
+            <div class="content-section">
+                <h2>方法详细说明</h2>
+                <h3 id="1-根据流程图讲一遍这个系统的流程">1. 根据流程图讲一遍这个系统的流程</h3>
+<p>该系统主要分为两个层次：<strong>数据层（Data Layer）</strong> 和 <strong>计算层（Computation Layer）</strong>。以下是其工作流程的详细描述：</p>
+<h4 id="数据层（data-layer）"><strong>数据层（Data Layer）</strong></h4>
+<ol>
+<li><p><strong>微服务应用监控</strong>：</p>
+<ul>
+<li>微服务应用运行在 Kubernetes 集群中，每个容器都会生成性能指标数据（如 CPU 使用率、内存使用率、磁盘 I/O、网络流量等）。</li>
+<li>这些指标数据通过日志文件或其他监控工具收集。</li>
+</ul>
+</li>
+<li><p><strong>数据传输</strong>：</p>
+<ul>
+<li>收集到的监控数据通过 Apache Thrift 序列化并进行压缩（例如使用 gzip），以减少数据传输量。</li>
+<li>压缩后的数据通过 Kafka 消息队列进行传输，Kafka 负责将数据从分布式容器中高效地传递到计算层。</li>
+</ul>
+</li>
+</ol>
+<h4 id="计算层（computation-layer）"><strong>计算层（Computation Layer）</strong></h4>
+<ol start="3">
+<li><p><strong>尾部延迟计算</strong>：</p>
+<ul>
+<li>在计算层，首先对传入的数据进行处理，计算小窗口内的尾部延迟（Tail Latency）。尾部延迟通常是指响应时间的高百分位值（如 TP99，即 99th percentile response time）。</li>
+</ul>
+</li>
+<li><p><strong>长尾延迟检测</strong>：</p>
+<ul>
+<li>系统会将计算出的尾部延迟与预设的报警阈值进行比较，以检测是否发生了长尾延迟问题（SWLT，Small-Window Long-Tail Latency）。</li>
+<li>如果尾部延迟超过阈值，则触发报警，并进入下一步的根因分析。</li>
+</ul>
+</li>
+<li><p><strong>ε-Diagnosis 根因分析</strong>：</p>
+<ul>
+<li>使用 ε-Diagnosis 算法对异常指标进行分析，找出导致长尾延迟的根本原因。</li>
+<li>ε-Diagnosis 算法基于两样本检验和 ϵ-Statistics，通过比较异常样本（SA）和正常样本（SN）的时间序列相似性，识别显著变化的指标作为潜在的根因指标。</li>
+</ul>
+</li>
+<li><p><strong>结果存储与反馈</strong>：</p>
+<ul>
+<li>分析结果存储在事件数据库（如 MySQL）中，以便后续查询和审计。</li>
+<li>时间序列指标存储在时序数据库（如 ClickHouse）中，支持高效的分析和聚合操作。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="2-总结其输入输出">2. 总结其输入输出</h3>
+<h4 id="输入"><strong>输入</strong></h4>
+<ul>
+<li><strong>监控数据</strong>：来自微服务应用的性能指标数据，包括但不限于：<ul>
+<li>CPU 使用率、内存使用率、磁盘 I/O、网络流量等基础设施层指标。</li>
+<li>吞吐量、QPS、并发负载、响应时间等应用层指标。</li>
+</ul>
+</li>
+<li><strong>预设阈值</strong>：用于检测长尾延迟的报警阈值（如 TP99 的阈值）。</li>
+<li><strong>时间窗口</strong>：用于计算尾部延迟的时间窗口大小（如 1 分钟或 1 秒）。</li>
+</ul>
+<h4 id="输出"><strong>输出</strong></h4>
+<ul>
+<li><strong>报警信息</strong>：当检测到长尾延迟时，生成报警信息，记录在事件数据库中。</li>
+<li><strong>根因指标</strong>：通过 ε-Diagnosis 算法识别出的潜在根因指标，用于定位问题的根本原因。</li>
+<li><strong>分析结果</strong>：存储在时序数据库中，支持后续的分析和可视化。</li>
+</ul>
+<hr>
+<h3 id="3-技术亮点与不足">3. 技术亮点与不足</h3>
+<h4 id="技术亮点"><strong>技术亮点</strong></h4>
+<ol>
+<li><p><strong>实时性</strong>：</p>
+<ul>
+<li>系统基于流式计算框架 Apache Flink 实现，能够实时处理海量监控数据，快速检测长尾延迟并进行根因分析。</li>
+<li>Kafka 的引入确保了数据传输的高效性和可靠性。</li>
+</ul>
+</li>
+<li><p><strong>低计算成本</strong>：</p>
+<ul>
+<li>ε-Diagnosis 算法基于两样本检验和 ϵ-Statistics，计算复杂度较低，能够在大规模微服务环境中快速运行。</li>
+<li>使用 Apache Thrift 和 gzip 压缩技术，有效减少了数据传输量。</li>
+</ul>
+</li>
+<li><p><strong>无监督学习</strong>：</p>
+<ul>
+<li>ε-Diagnosis 是一种无监督算法，无需依赖大量训练数据，适用于动态变化的微服务环境。</li>
+</ul>
+</li>
+<li><p><strong>高召回率</strong>：</p>
+<ul>
+<li>ε-Diagnosis 能够在保证高召回率的同时显著缩小候选问题指标范围，避免漏报实际根因。</li>
+</ul>
+</li>
+<li><p><strong>可扩展性</strong>：</p>
+<ul>
+<li>系统架构基于 Kubernetes 和 Kafka，具有良好的可扩展性，能够支持大规模微服务集群的监控和分析。</li>
+</ul>
+</li>
+</ol>
+<h4 id="技术不足"><strong>技术不足</strong></h4>
+<ol>
+<li><p><strong>精度与召回率的权衡</strong>：</p>
+<ul>
+<li>ε-Diagnosis 的精度可能受到置信度阈值（α）的影响，过高的 α 可能会导致误报，而过低的 α 可能会导致漏报。</li>
+<li>需要根据具体应用场景调整 α，这可能需要一定的经验或自动调优机制。</li>
+</ul>
+</li>
+<li><p><strong>复杂环境下的适应性</strong>：</p>
+<ul>
+<li>在极其复杂的微服务环境中，可能存在多种因素共同导致长尾延迟，单一的两样本检验可能无法完全捕捉所有根因。</li>
+</ul>
+</li>
+<li><p><strong>依赖于预设阈值</strong>：</p>
+<ul>
+<li>长尾延迟的检测依赖于预设的报警阈值，如果阈值设置不合理，可能导致误报或漏报。</li>
+</ul>
+</li>
+<li><p><strong>算法的局限性</strong>：</p>
+<ul>
+<li>ε-Diagnosis 算法虽然在实验中表现出色，但在实际生产环境中，可能会遇到更多未见的异常模式，算法的鲁棒性有待进一步验证。</li>
+</ul>
+</li>
+<li><p><strong>资源消耗</strong>：</p>
+<ul>
+<li>尽管系统设计追求低计算成本，但在处理大规模数据时，仍需消耗一定的计算和存储资源，尤其是在高并发场景下。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="总结">总结</h3>
+<p>该系统通过数据层和计算层的协同工作，实现了对微服务平台中小窗口长尾延迟的实时诊断。其核心亮点在于实时性、低计算成本和无监督学习能力，但同时也存在精度与召回率的权衡、复杂环境适应性等问题。未来可以通过优化算法、引入自动调优机制等方式进一步提升系统的性能和适用性。</p>
+
+            </div>
+        </div>
+        <div class="diagram-column">
+            
+        <div class="sticky-diagram">
+            <h2>流程图</h2>
+            <div class="diagram-container">
+                <img src="截屏2025-03-21 11.10.46.png" alt="Epsilon-Diagnosis流程图" class="img-fluid">
+            </div>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">微服务架构根因分析方法</h5>
+                    <p class="opacity-75">综合统计方法、图理论方法、机器学习方法、深度学习方法以及LLM方法，为微服务架构中的故障根因分析提供全面解决方案。</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">快速链接</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="../../../index.html#home" class="text-decoration-none text-light opacity-75">首页</a></li>
+                        <li class="mb-2"><a href="../../../index.html#methods" class="text-decoration-none text-light opacity-75">分析方法</a></li>
+                        <li class="mb-2"><a href="../../../index.html#about" class="text-decoration-none text-light opacity-75">关于项目</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="fw-bold mb-3">联系方式</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="mailto:fighterforever1219@gmail.com" class="text-decoration-none text-light opacity-75"><i class="far fa-envelope me-2"></i> fighterforever1219@gmail.com</a></li>
+                        <li class="mb-2"><a href="https://github.com/Fighterforever" target="_blank" class="text-decoration-none text-light opacity-75"><i class="fab fa-github me-2"></i> GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="text-center opacity-75">
+                <p>© 2025 微服务架构根因分析方法</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 遮罩层 -->
+    <div class="modal-backdrop"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // 初始化AOS动画
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 图片点击放大功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const backdrop = document.querySelector('.modal-backdrop');
+            
+            // 为所有流程图容器添加点击事件
+            document.querySelectorAll('.diagram-container').forEach(container => {
+                container.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    backdrop.classList.toggle('show');
+                });
+            });
+            
+            // 点击遮罩层关闭放大图片
+            backdrop.addEventListener('click', function() {
+                document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                    container.classList.remove('expanded');
+                });
+                this.classList.remove('show');
+            });
+            
+            // ESC键关闭放大图片
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.diagram-container.expanded').forEach(container => {
+                        container.classList.remove('expanded');
+                    });
+                    backdrop.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
