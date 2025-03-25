@@ -162,7 +162,7 @@ const generateBreadcrumbs = (pathParts) => {
         const isLast = i === pathParts.length - 1;
         
         // 为了GitHub Pages，确保URL使用正确编码
-        const encodedPart = encodeURIComponent(part);
+        const encodedPart = encodeURIComponent(part).replace(/%20/g, ' ');
         currentPath += (currentPath ? '/' : '') + encodedPart;
         
         if (isLast) {
