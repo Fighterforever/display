@@ -243,7 +243,7 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
         
         <div class="method-grid">
             ${implementations.map((impl, index) => {
-                const normalizedName = normalizeFileName(impl);
+                // 不要规范化链接中的文件夹名称
                 return `
         <div class="method-item" data-aos="fade-up" data-aos-delay="${index * 100}">
             <div class="method-card">
@@ -253,7 +253,7 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
                     </div>
                     <h3 class="fw-bold mb-3">${impl}</h3>
                     <p class="text-muted mb-4">微服务架构中的根因分析方法</p>
-                    <a href="${normalizedName}/index.html" class="btn btn-primary">了解更多</a>
+                    <a href="${impl}/index.html" class="btn btn-primary">了解更多</a>
                 </div>
             </div>
         </div>`;
