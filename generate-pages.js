@@ -24,6 +24,18 @@ try {
 const rootDir = __dirname;
 const templatePath = path.join(rootDir, 'template.html');
 
+// 规范化文件名，移除特殊字符
+const normalizeFileName = (fileName) => {
+    return fileName
+        .replace(/[éèêë]/g, 'e')
+        .replace(/[àâä]/g, 'a')
+        .replace(/[ùûü]/g, 'u')
+        .replace(/[îï]/g, 'i')
+        .replace(/[ôö]/g, 'o')
+        .replace(/[ç]/g, 'c')
+        .replace(/[^a-zA-Z0-9-]/g, '');
+};
+
 // 方法名称和图标映射
 const methodIcons = {
     '统计方法': 'fa-chart-line',
@@ -218,63 +230,46 @@ const findBestMarkdown = (dirPath) => {
 };
 
 // 生成目录页面
-const generateDirectoryPage = (dirPath, title, subdirs) => {
+const generateDirectoryPage = (dirPath, methodName, implementations) => {
     const template = readTemplate();
-    const relativePath = path.relative(dirPath, rootDir).replace(/\\/g, '/');
-    const rootPath = relativePath ? relativePath + '/' : '';
+    const relativePath = path.relative(rootDir, dirPath);
+    const pathParts = relativePath.split(path.sep);
+    const rootPath = '../'.repeat(pathParts.length);
     
-    // 面包屑导航
-    const pathParts = dirPath.replace(rootDir, '').split(path.sep).filter(Boolean);
-    let breadcrumbs = generateBreadcrumbs(pathParts);
-    breadcrumbs = breadcrumbs.replace(/ROOT_PATH/g, rootPath);
-    
-    // 构建子目录卡片
-    let cardsHtml = '';
-    
-    for (let i = 0; i < subdirs.length; i++) {
-        const subdir = subdirs[i];
-        const subdirPath = path.join(dirPath, subdir);
-        
-        // 确保连接正确编码
-        const encodedSubdir = encodeURIComponent(subdir);
-        const methodIcon = subMethodIcons[subdir] || 'fa-folder';
-        const methodDesc = subMethodDescriptions[subdir] || '微服务架构中的根因分析方法';
-        
-        cardsHtml += `
-        <div class="method-item" data-aos="fade-up" data-aos-delay="${100 * (i % 3)}">
-            <div class="method-card">
-                <div class="card-body text-center p-5">
-                    <div class="method-icon">
-                        <i class="${methodIcon}"></i>
-                    </div>
-                    <h3 class="fw-bold mb-3">${subdir}</h3>
-                    <p class="text-muted mb-4">${methodDesc}</p>
-                    <a href="${encodedSubdir}/index.html" class="btn btn-primary">了解更多</a>
-                </div>
-            </div>
-        </div>`;
-    }
-    
-    // 方法网格布局
-    const content = `
+    let mainContent = `
     <div class="mb-5">
-        <h2 class="section-title">${title} 分析方法</h2>
+        <h2 class="section-title">${methodName} 分析方法</h2>
         <p class="lead text-muted mb-5">选择以下方法了解更多详情</p>
         
         <div class="method-grid">
-            ${cardsHtml}
+            ${implementations.map((impl, index) => {
+                const normalizedName = normalizeFileName(impl);
+                return `
+        <div class="method-item" data-aos="fade-up" data-aos-delay="${index * 100}">
+            <div class="method-card">
+                <div class="card-body text-center p-5">
+                    <div class="method-icon">
+                        <i class="fa-folder"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">${impl}</h3>
+                    <p class="text-muted mb-4">微服务架构中的根因分析方法</p>
+                    <a href="${normalizedName}/index.html" class="btn btn-primary">了解更多</a>
+                </div>
+            </div>
+        </div>`;
+            }).join('')}
         </div>
     </div>`;
-    
-    // 替换模板中的占位符
+
     let html = template
-        .replace(/{{TITLE}}/g, title)
+        .replace(/{{TITLE}}/g, methodName)
         .replace(/{{SUBTITLE}}/g, '微服务架构中的根因分析方法')
-        .replace(/{{BREADCRUMBS}}/g, breadcrumbs)
-        .replace(/{{MAIN_CONTENT}}/g, content)
-        .replace(/{{ROOT_PATH}}/g, rootPath);
-    
-    // 写入文件
+        .replace(/{{MAIN_CONTENT}}/g, mainContent)
+        .replace(/ROOT_PATH\//g, rootPath);
+
+    const breadcrumbs = generateBreadcrumbs(pathParts);
+    html = html.replace('{{BREADCRUMBS}}', breadcrumbs);
+
     const outputPath = path.join(dirPath, 'index.html');
     fs.writeFileSync(outputPath, html);
     console.log(`生成目录页面: ${outputPath}`);
