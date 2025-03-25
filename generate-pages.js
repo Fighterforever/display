@@ -23,6 +23,7 @@ try {
 // 配置
 const rootDir = __dirname;
 const templatePath = path.join(rootDir, 'template.html');
+const baseUrl = '/display'; // GitHub Pages的基础URL路径
 
 // 规范化文件名，移除特殊字符
 const normalizeFileName = (fileName) => {
@@ -166,21 +167,19 @@ const processMarkdown = (content) => {
 
 // 生成面包屑导航
 const generateBreadcrumbs = (pathParts) => {
-    let html = `<li class="breadcrumb-item"><a href="ROOT_PATH/index.html">首页</a></li>`;
+    let html = `<li class="breadcrumb-item"><a href="${baseUrl}/index.html">首页</a></li>`;
     let currentPath = '';
     
     for (let i = 0; i < pathParts.length; i++) {
         const part = pathParts[i];
         const isLast = i === pathParts.length - 1;
         
-        // 为了GitHub Pages，确保URL使用正确编码
-        const encodedPart = encodeURIComponent(part).replace(/%20/g, ' ');
-        currentPath += (currentPath ? '/' : '') + encodedPart;
+        currentPath += (currentPath ? '/' : '') + encodeURIComponent(part);
         
         if (isLast) {
             html += `<li class="breadcrumb-item active" aria-current="page">${part}</li>`;
         } else {
-            html += `<li class="breadcrumb-item"><a href="ROOT_PATH/${currentPath}/index.html">${part}</a></li>`;
+            html += `<li class="breadcrumb-item"><a href="${baseUrl}/${currentPath}/index.html">${part}</a></li>`;
         }
     }
     
@@ -234,7 +233,7 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
     const template = readTemplate();
     const relativePath = path.relative(rootDir, dirPath);
     const pathParts = relativePath.split(path.sep);
-    const rootPath = '../'.repeat(pathParts.length);
+    const rootPath = baseUrl + '/' + '../'.repeat(pathParts.length - 1);
     
     // 生成面包屑导航
     const breadcrumbs = generateBreadcrumbs(pathParts);
@@ -257,7 +256,7 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
                             </div>
                             <h3 class="fw-bold mb-3">${impl}</h3>
                             <p class="text-muted mb-4">${implDesc}</p>
-                            <a href="./${impl}/index.html" class="btn btn-primary">了解更多</a>
+                            <a href="${baseUrl}/${relativePath}/${impl}/index.html" class="btn btn-primary">了解更多</a>
                         </div>
                     </div>
                 </div>`;
@@ -282,7 +281,7 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
     const template = readTemplate();
     const relativePath = path.relative(rootDir, dirPath);
     const pathParts = relativePath.split(path.sep);
-    const rootPath = '../'.repeat(pathParts.length);
+    const rootPath = baseUrl + '/' + '../'.repeat(pathParts.length - 1);
     
     // 面包屑导航
     const breadcrumbs = generateBreadcrumbs(pathParts);
@@ -292,8 +291,6 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
     if (mdFile && fs.existsSync(mdFile)) {
         try {
             const md = fs.readFileSync(mdFile, 'utf8');
-            
-            // 统一处理Markdown内容，移除"根据流程图讲解论文提出的模型流程"等非统一语句
             let cleanedMd = md
                 .replace(/根据流程图讲解论文提出的模型流程/g, '模型流程')
                 .replace(/根据流程图讲解\S*提出的模型流程/g, '模型流程')
@@ -318,12 +315,11 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         <div class="sticky-diagram">
             <h2>流程图</h2>
             <div class="diagram-container">
-                <img src="${imgName}" alt="${title}流程图" class="img-fluid">
+                <img src="${baseUrl}/${relativePath}/${imgName}" alt="${title}流程图" class="img-fluid">
                 <div class="zoom-hint">点击可放大查看</div>
             </div>
         </div>`;
     } else {
-        // 创建默认的占位图
         imgHtml = `
         <div class="sticky-diagram">
             <h2>流程图</h2>
@@ -335,7 +331,6 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         </div>`;
     }
     
-    // 构建两栏布局内容
     let content = `
     <div class="method-detail-container">
         <div class="content-column">
@@ -349,7 +344,6 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         </div>
     </div>`;
     
-    // 替换模板中的占位符
     let html = template
         .replace(/{{TITLE}}/g, title)
         .replace(/{{SUBTITLE}}/g, '微服务架构中的根因分析方法')
@@ -357,7 +351,6 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         .replace(/{{MAIN_CONTENT}}/g, content)
         .replace(/ROOT_PATH\//g, rootPath);
     
-    // 写入文件
     const outputPath = path.join(dirPath, 'index.html');
     fs.writeFileSync(outputPath, html);
     console.log(`生成方法页面: ${outputPath}`);
