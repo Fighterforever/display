@@ -23,19 +23,6 @@ try {
 // 配置
 const rootDir = __dirname;
 const templatePath = path.join(rootDir, 'template.html');
-const baseUrl = '/display'; // GitHub Pages的基础URL路径
-
-// 规范化文件名，移除特殊字符
-const normalizeFileName = (fileName) => {
-    return fileName
-        .replace(/[éèêë]/g, 'e')
-        .replace(/[àâä]/g, 'a')
-        .replace(/[ùûü]/g, 'u')
-        .replace(/[îï]/g, 'i')
-        .replace(/[ôö]/g, 'o')
-        .replace(/[ç]/g, 'c')
-        .replace(/[^a-zA-Z0-9-]/g, '');
-};
 
 // 方法名称和图标映射
 const methodIcons = {
@@ -167,19 +154,21 @@ const processMarkdown = (content) => {
 
 // 生成面包屑导航
 const generateBreadcrumbs = (pathParts) => {
-    let html = `<li class="breadcrumb-item"><a href="${baseUrl}/index.html">首页</a></li>`;
+    let html = `<li class="breadcrumb-item"><a href="ROOT_PATH/index.html">首页</a></li>`;
     let currentPath = '';
     
     for (let i = 0; i < pathParts.length; i++) {
         const part = pathParts[i];
         const isLast = i === pathParts.length - 1;
         
-        currentPath += (currentPath ? '/' : '') + encodeURIComponent(part);
+        // 为了GitHub Pages，确保URL使用正确编码
+        const encodedPart = encodeURIComponent(part).replace(/%20/g, ' ');
+        currentPath += (currentPath ? '/' : '') + encodedPart;
         
         if (isLast) {
             html += `<li class="breadcrumb-item active" aria-current="page">${part}</li>`;
         } else {
-            html += `<li class="breadcrumb-item"><a href="${baseUrl}/${currentPath}/index.html">${part}</a></li>`;
+            html += `<li class="breadcrumb-item"><a href="ROOT_PATH/${currentPath}/index.html">${part}</a></li>`;
         }
     }
     
@@ -229,48 +218,63 @@ const findBestMarkdown = (dirPath) => {
 };
 
 // 生成目录页面
-const generateDirectoryPage = (dirPath, methodName, implementations) => {
+const generateDirectoryPage = (dirPath, title, subdirs) => {
     const template = readTemplate();
-    const relativePath = path.relative(rootDir, dirPath);
-    const pathParts = relativePath.split(path.sep);
-    const rootPath = baseUrl;
+    const relativePath = path.relative(dirPath, rootDir).replace(/\\/g, '/');
+    const rootPath = relativePath ? relativePath + '/' : '';
     
-    // 生成面包屑导航
-    const breadcrumbs = generateBreadcrumbs(pathParts);
+    // 面包屑导航
+    const pathParts = dirPath.replace(rootDir, '').split(path.sep).filter(Boolean);
+    let breadcrumbs = generateBreadcrumbs(pathParts);
+    breadcrumbs = breadcrumbs.replace(/ROOT_PATH/g, rootPath);
     
-    let mainContent = `
+    // 构建子目录卡片
+    let cardsHtml = '';
+    
+    for (let i = 0; i < subdirs.length; i++) {
+        const subdir = subdirs[i];
+        const subdirPath = path.join(dirPath, subdir);
+        
+        // 确保连接正确编码
+        const encodedSubdir = encodeURIComponent(subdir);
+        const methodIcon = subMethodIcons[subdir] || 'fa-folder';
+        const methodDesc = subMethodDescriptions[subdir] || '微服务架构中的根因分析方法';
+        
+        cardsHtml += `
+        <div class="method-item" data-aos="fade-up" data-aos-delay="${100 * (i % 3)}">
+            <div class="method-card">
+                <div class="card-body text-center p-5">
+                    <div class="method-icon">
+                        <i class="${methodIcon}"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">${subdir}</h3>
+                    <p class="text-muted mb-4">${methodDesc}</p>
+                    <a href="${encodedSubdir}/index.html" class="btn btn-primary">了解更多</a>
+                </div>
+            </div>
+        </div>`;
+    }
+    
+    // 方法网格布局
+    const content = `
     <div class="mb-5">
-        <h2 class="section-title">${methodName} 分析方法</h2>
+        <h2 class="section-title">${title} 分析方法</h2>
         <p class="lead text-muted mb-5">选择以下方法了解更多详情</p>
         
         <div class="method-grid">
-            ${implementations.map((impl, index) => {
-                const implIcon = getMethodIcon(impl);
-                const implDesc = getMethodDescription(impl);
-                return `
-                <div class="method-item" data-aos="fade-up" data-aos-delay="${index * 100}">
-                    <div class="method-card">
-                        <div class="card-body text-center p-5">
-                            <div class="method-icon">
-                                <i class="fas ${implIcon}"></i>
-                            </div>
-                            <h3 class="fw-bold mb-3">${impl}</h3>
-                            <p class="text-muted mb-4">${implDesc}</p>
-                            <a href="${baseUrl}/${relativePath}/${impl}/index.html" class="btn btn-primary">了解更多</a>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('')}
+            ${cardsHtml}
         </div>
     </div>`;
-
+    
+    // 替换模板中的占位符
     let html = template
-        .replace(/{{TITLE}}/g, methodName)
+        .replace(/{{TITLE}}/g, title)
         .replace(/{{SUBTITLE}}/g, '微服务架构中的根因分析方法')
         .replace(/{{BREADCRUMBS}}/g, breadcrumbs)
-        .replace(/{{MAIN_CONTENT}}/g, mainContent)
+        .replace(/{{MAIN_CONTENT}}/g, content)
         .replace(/{{ROOT_PATH}}/g, rootPath);
-
+    
+    // 写入文件
     const outputPath = path.join(dirPath, 'index.html');
     fs.writeFileSync(outputPath, html);
     console.log(`生成目录页面: ${outputPath}`);
@@ -279,18 +283,21 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
 // 生成方法详情页面
 const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
     const template = readTemplate();
-    const relativePath = path.relative(rootDir, dirPath);
-    const pathParts = relativePath.split(path.sep);
-    const rootPath = baseUrl;
+    const relativePath = path.relative(dirPath, rootDir).replace(/\\/g, '/');
+    const rootPath = relativePath ? relativePath + '/' : '';
     
     // 面包屑导航
-    const breadcrumbs = generateBreadcrumbs(pathParts);
+    const pathParts = dirPath.replace(rootDir, '').split(path.sep).filter(Boolean);
+    let breadcrumbs = generateBreadcrumbs(pathParts);
+    breadcrumbs = breadcrumbs.replace(/ROOT_PATH/g, rootPath);
     
     // 读取并处理Markdown文件
     let mdContent = '';
     if (mdFile && fs.existsSync(mdFile)) {
         try {
             const md = fs.readFileSync(mdFile, 'utf8');
+            
+            // 统一处理Markdown内容，移除"根据流程图讲解论文提出的模型流程"等非统一语句
             let cleanedMd = md
                 .replace(/根据流程图讲解论文提出的模型流程/g, '模型流程')
                 .replace(/根据流程图讲解\S*提出的模型流程/g, '模型流程')
@@ -315,11 +322,12 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         <div class="sticky-diagram">
             <h2>流程图</h2>
             <div class="diagram-container">
-                <img src="${baseUrl}/${relativePath}/${imgName}" alt="${title}流程图" class="img-fluid">
+                <img src="${imgName}" alt="${title}流程图" class="img-fluid">
                 <div class="zoom-hint">点击可放大查看</div>
             </div>
         </div>`;
     } else {
+        // 创建默认的占位图
         imgHtml = `
         <div class="sticky-diagram">
             <h2>流程图</h2>
@@ -331,6 +339,7 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         </div>`;
     }
     
+    // 构建两栏布局内容
     let content = `
     <div class="method-detail-container">
         <div class="content-column">
@@ -344,6 +353,7 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         </div>
     </div>`;
     
+    // 替换模板中的占位符
     let html = template
         .replace(/{{TITLE}}/g, title)
         .replace(/{{SUBTITLE}}/g, '微服务架构中的根因分析方法')
@@ -351,6 +361,7 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         .replace(/{{MAIN_CONTENT}}/g, content)
         .replace(/{{ROOT_PATH}}/g, rootPath);
     
+    // 写入文件
     const outputPath = path.join(dirPath, 'index.html');
     fs.writeFileSync(outputPath, html);
     console.log(`生成方法页面: ${outputPath}`);
@@ -471,212 +482,13 @@ const main = () => {
         if (!fs.existsSync(path.join(rootDir, 'styles.css'))) {
             console.warn('未找到styles.css，将创建基本样式');
             const basicCss = `
-                /* 全局样式 */
-                body {
-                    font-family: 'Microsoft YaHei', sans-serif;
-                    background-color: #f8f9fa;
-                    color: #333;
-                }
-                
-                /* 导航栏样式 */
-                .navbar {
-                    transition: all 0.3s;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                
-                .navbar.scrolled {
-                    background-color: #1a56db !important;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                }
-                
-                /* 页面标题样式 */
-                .hero-header {
-                    background: linear-gradient(135deg, #3b82f6, #1e40af);
-                    color: white;
-                    padding: 120px 0 80px;
-                    margin-bottom: 50px;
-                }
-                
-                .detail-header {
-                    background: linear-gradient(135deg, #3b82f6, #1e40af);
-                    color: white;
-                    padding: 100px 0 40px;
-                    margin-bottom: 30px;
-                }
-                
-                .detail-content {
-                    animation: fadeIn 0.8s ease-out;
-                }
-                
-                /* 方法卡片样式 */
-                .method-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                    gap: 30px;
-                }
-                
-                .method-card {
-                    background: white;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                    transition: transform 0.3s, box-shadow 0.3s;
-                    height: 100%;
-                }
-                
-                .method-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-                }
-                
-                .method-icon {
-                    margin-bottom: 20px;
-                }
-                
-                .method-icon i {
-                    font-size: 48px;
-                    color: #3b82f6;
-                    background: rgba(59, 130, 246, 0.1);
-                    width: 100px;
-                    height: 100px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 50%;
-                    margin: 0 auto;
-                }
-                
-                /* 方法详情页样式 */
-                .method-detail-container {
-                    display: grid;
-                    grid-template-columns: 2fr 1fr;
-                    gap: 40px;
-                }
-                
-                @media (max-width: 992px) {
-                    .method-detail-container {
-                        grid-template-columns: 1fr;
-                    }
-                    
-                    .sticky-diagram {
-                        position: static !important;
-                    }
-                }
-                
-                .content-section {
-                    background: white;
-                    padding: 30px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                }
-                
-                .sticky-diagram {
-                    position: sticky;
-                    top: 100px;
-                }
-                
-                .diagram-container {
-                    background: white;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                    cursor: pointer;
-                    position: relative;
-                    transition: all 0.3s;
-                    max-height: 500px;
-                    overflow: hidden;
-                }
-                
-                .diagram-container.expanded {
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    z-index: 1000;
-                    width: 90%;
-                    height: 90%;
-                    max-height: none;
-                    overflow: auto;
-                }
-                
-                .zoom-hint {
-                    position: absolute;
-                    bottom: 10px;
-                    right: 10px;
-                    background: rgba(0,0,0,0.7);
-                    color: white;
-                    padding: 5px 10px;
-                    border-radius: 4px;
-                    font-size: 12px;
-                    opacity: 0;
-                    transition: opacity 0.3s;
-                }
-                
-                .diagram-container:hover .zoom-hint {
-                    opacity: 1;
-                }
-                
-                /* 遮罩层 */
-                .modal-backdrop {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.8);
-                    z-index: 999;
-                    display: none;
-                }
-                
-                .modal-backdrop.show {
-                    display: block;
-                }
-                
-                /* 页脚样式 */
-                .footer {
-                    background: #1a56db;
-                    color: white;
-                    padding: 60px 0 30px;
-                    margin-top: 100px;
-                }
-                
-                /* 动画 */
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                
-                /* 面包屑导航 */
-                .breadcrumb {
-                    background-color: transparent;
-                    padding: 10px 0;
-                }
-                
-                .breadcrumb-item a {
-                    color: #3b82f6;
-                    text-decoration: none;
-                }
-                
-                .breadcrumb-item.active {
-                    color: #6b7280;
-                }
-                
-                /* 自适应样式 */
-                @media (max-width: 768px) {
-                    .hero-header, .detail-header {
-                        padding: 80px 0 40px;
-                    }
-                    
-                    .method-grid {
-                        grid-template-columns: 1fr;
-                    }
-                }
+                body { font-family: 'Microsoft YaHei', sans-serif; }
+                .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+                header { background-color: #2563eb; color: white; padding: 2rem 0; margin-bottom: 2rem; }
+                footer { text-align: center; margin-top: 2rem; padding: 1rem 0; background-color: #f1f5f9; }
             `;
             fs.writeFileSync(path.join(rootDir, 'styles.css'), basicCss);
         }
-        
-        // 生成首页
-        generateHomePage();
         
         // 获取所有一级方法目录
         const methodDirs = getDirectories(rootDir)
@@ -686,67 +498,13 @@ const main = () => {
         
         // 处理每个方法目录
         methodDirs.forEach(dir => {
-            processDirectory(path.join(rootDir, dir));
+            processDirectory(dir);
         });
         
         console.log('网站页面生成完成！');
     } catch (error) {
         console.error('生成页面时出错:', error);
     }
-};
-
-// 生成首页
-const generateHomePage = () => {
-    const template = readTemplate();
-    const rootPath = baseUrl;
-    
-    // 获取一级方法目录
-    const methodDirs = getDirectories(rootDir)
-        .filter(dir => Object.keys(methodIcons).includes(dir));
-    
-    let mainContent = `
-    <section id="home" class="mb-5">
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold mb-3">微服务根因分析方法汇总</h1>
-            <p class="lead">全面梳理微服务架构中的故障根因分析技术体系</p>
-        </div>
-    </section>
-    
-    <section id="methods" class="mb-5">
-        <h2 class="section-title text-center mb-5">分析方法分类</h2>
-        
-        <div class="method-grid">
-            ${methodDirs.map((dir, index) => {
-                const icon = methodIcons[dir] || 'fa-folder';
-                const desc = methodDescriptions[dir] || '微服务架构中的根因分析方法';
-                return `
-                <div class="method-item" data-aos="fade-up" data-aos-delay="${index * 100}">
-                    <div class="method-card">
-                        <div class="card-body text-center p-5">
-                            <div class="method-icon">
-                                <i class="fas ${icon}"></i>
-                            </div>
-                            <h3 class="fw-bold mb-3">${dir}</h3>
-                            <p class="text-muted mb-4">${desc}</p>
-                            <a href="${baseUrl}/${encodeURIComponent(dir)}/index.html" class="btn btn-primary">了解更多</a>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('')}
-        </div>
-    </section>`;
-    
-    let html = template
-        .replace(/{{TITLE}}/g, '首页')
-        .replace(/{{SUBTITLE}}/g, '微服务架构中的根因分析方法')
-        .replace(/{{BREADCRUMBS}}/g, '<li class="breadcrumb-item active" aria-current="page">首页</li>')
-        .replace(/{{MAIN_CONTENT}}/g, mainContent)
-        .replace(/{{ROOT_PATH}}/g, rootPath);
-    
-    // 写入文件
-    const outputPath = path.join(rootDir, 'index.html');
-    fs.writeFileSync(outputPath, html);
-    console.log(`生成首页: ${outputPath}`);
 };
 
 // 执行主函数
