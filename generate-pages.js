@@ -236,6 +236,9 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
     const pathParts = relativePath.split(path.sep);
     const rootPath = '../'.repeat(pathParts.length);
     
+    // 生成面包屑导航
+    const breadcrumbs = generateBreadcrumbs(pathParts);
+    
     let mainContent = `
     <div class="mb-5">
         <h2 class="section-title">${methodName} 分析方法</h2>
@@ -243,20 +246,21 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
         
         <div class="method-grid">
             ${implementations.map((impl, index) => {
-                // 不要规范化链接中的文件夹名称
+                const implIcon = getMethodIcon(impl);
+                const implDesc = getMethodDescription(impl);
                 return `
-        <div class="method-item" data-aos="fade-up" data-aos-delay="${index * 100}">
-            <div class="method-card">
-                <div class="card-body text-center p-5">
-                    <div class="method-icon">
-                        <i class="fa-folder"></i>
+                <div class="method-item" data-aos="fade-up" data-aos-delay="${index * 100}">
+                    <div class="method-card">
+                        <div class="card-body text-center p-5">
+                            <div class="method-icon">
+                                <i class="fas ${implIcon}"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">${impl}</h3>
+                            <p class="text-muted mb-4">${implDesc}</p>
+                            <a href="./${impl}/index.html" class="btn btn-primary">了解更多</a>
+                        </div>
                     </div>
-                    <h3 class="fw-bold mb-3">${impl}</h3>
-                    <p class="text-muted mb-4">微服务架构中的根因分析方法</p>
-                    <a href="${impl}/index.html" class="btn btn-primary">了解更多</a>
-                </div>
-            </div>
-        </div>`;
+                </div>`;
             }).join('')}
         </div>
     </div>`;
@@ -264,11 +268,9 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
     let html = template
         .replace(/{{TITLE}}/g, methodName)
         .replace(/{{SUBTITLE}}/g, '微服务架构中的根因分析方法')
+        .replace(/{{BREADCRUMBS}}/g, breadcrumbs)
         .replace(/{{MAIN_CONTENT}}/g, mainContent)
         .replace(/ROOT_PATH\//g, rootPath);
-
-    const breadcrumbs = generateBreadcrumbs(pathParts);
-    html = html.replace('{{BREADCRUMBS}}', breadcrumbs);
 
     const outputPath = path.join(dirPath, 'index.html');
     fs.writeFileSync(outputPath, html);
