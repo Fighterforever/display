@@ -278,13 +278,12 @@ const generateDirectoryPage = (dirPath, methodName, implementations) => {
 // 生成方法详情页面
 const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
     const template = readTemplate();
-    const relativePath = path.relative(dirPath, rootDir).replace(/\\/g, '/');
-    const rootPath = relativePath ? relativePath + '/' : '';
+    const relativePath = path.relative(rootDir, dirPath);
+    const pathParts = relativePath.split(path.sep);
+    const rootPath = '../'.repeat(pathParts.length);
     
     // 面包屑导航
-    const pathParts = dirPath.replace(rootDir, '').split(path.sep).filter(Boolean);
-    let breadcrumbs = generateBreadcrumbs(pathParts);
-    breadcrumbs = breadcrumbs.replace(/ROOT_PATH/g, rootPath);
+    const breadcrumbs = generateBreadcrumbs(pathParts);
     
     // 读取并处理Markdown文件
     let mdContent = '';
@@ -354,7 +353,7 @@ const generateMethodPage = (dirPath, title, mdFile, imgFile) => {
         .replace(/{{SUBTITLE}}/g, '微服务架构中的根因分析方法')
         .replace(/{{BREADCRUMBS}}/g, breadcrumbs)
         .replace(/{{MAIN_CONTENT}}/g, content)
-        .replace(/{{ROOT_PATH}}/g, rootPath);
+        .replace(/ROOT_PATH\//g, rootPath);
     
     // 写入文件
     const outputPath = path.join(dirPath, 'index.html');
